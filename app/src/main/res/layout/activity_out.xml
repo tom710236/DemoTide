@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_out"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    tools:context="com.example.tom.demotide.OutActivity"
+    android:orientation="vertical">
+
+    <FrameLayout android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:background="?attr/colorPrimary"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:elevation="0dp">
+
+        </android.support.v7.widget.Toolbar>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:text="世潮檢貨系統"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:gravity="center_horizontal|center"
+            android:layout_gravity="top|center_horizontal" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="right">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"></LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="56dp"
+                android:id="@+id/textView3"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:gravity="center" />
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="4.10"
+        android:paddingBottom="16dp"
+        android:paddingEnd="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:weightSum="1">
+
+        <TextView
+            android:text="出貨資訊"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:id="@+id/textView2"
+            android:gravity="bottom" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="#000000" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="70dp">
+
+            <TextView
+                android:text="客戶"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/textView4"
+                android:layout_weight="1.00"
+                android:gravity="center_vertical|center_horizontal"
+                android:textSize="18sp"
+                android:textColor="@android:color/black"/>
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/spinner"
+                android:layout_weight="2.00"
+                android:layout_gravity="center_vertical|center"
+                android:gravity="center_vertical|center_horizontal|start" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="#000000" />
+
+        <TextView
+            android:text="請選擇出貨單"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView8" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:id="@+id/listView" />
+
+        <Button
+            android:text="確定"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/button3"
+            android:textSize="18sp"
+            android:onClick="enter" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom">
+
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:background="?attr/colorPrimary"
+            android:theme="?attr/actionBarTheme"
+            android:minHeight="?attr/actionBarSize"
+            android:id="@+id/toolbar3"
+            android:layout_height="30dp" />
+
+        <TextView
+            android:text="世潮企業股份有限公司"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:id="@+id/textView9"
+            android:gravity="center_vertical|center" />
+    </FrameLayout>
+
+</LinearLayout>
