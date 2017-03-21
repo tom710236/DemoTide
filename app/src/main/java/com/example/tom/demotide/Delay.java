@@ -39,12 +39,12 @@ public class Delay extends Service {
     String url = "http://demo.shinda.com.tw/ModernWebApi/getProduct.aspx";
     ArrayList<ProductInfo> trans;
     private MyDBhelper helper;
-    SQLiteDatabase db;
+    SQLiteDatabase db,db2;
     final String DB_NAME = "tblTable";
     ListView listView;
     ContentValues addbase;
     String ID,name,NO,DT;
-    String today;
+    String today,today2;
     //建構子
     public Delay(){
 
@@ -70,6 +70,7 @@ public class Delay extends Service {
                     //放入新增表格
                     Get get = new Get();
                     get.start();
+                    upDateTimes();
                 }
                 handler.postAtTime(this,android.os.SystemClock.uptimeMillis()+1000);
             }
@@ -174,5 +175,19 @@ public class Delay extends Service {
         String dateformat = "HH:mm:ss";
         SimpleDateFormat df = new SimpleDateFormat(dateformat);
         today = df.format(mCal.getTime());
+    }
+    private void upDateTimes(){
+        MyDBhelper2 MyDB2 = new MyDBhelper2(this,"tblOrder2",null,1);
+        db2=MyDB2.getWritableDatabase();
+        ContentValues addbase = new ContentValues();
+        time();
+        addbase.put("cUpdateDT TEXT",today2);
+        db2.insert("tblTable2",null,addbase);
+    }
+    private void time(){
+        Calendar mCal = Calendar.getInstance();
+        String dateformat = "yyyy/MM/dd/ HH:mm:ss";
+        SimpleDateFormat df = new SimpleDateFormat(dateformat);
+        today2 = df.format(mCal.getTime());
     }
 }

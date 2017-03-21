@@ -62,14 +62,19 @@
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="451dp"
+        android:layout_height="342dp"
         android:id="@+id/list"
         android:paddingBottom="30dp"
         android:paddingEnd="16dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:paddingStart="16dp"
-        android:layout_weight="1" />
+        android:paddingStart="16dp" />
+
+    <ListView
+        android:id="@+id/lv"
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:layout_weight="0.96" />
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -1,6 +1,8 @@
 package com.example.tom.demotide;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,6 +12,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import static com.example.tom.demotide.R.layout.lview;
@@ -21,7 +24,7 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
     int[] icons = {R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp
             , R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp};
     String cUserName;
-
+    SQLiteDatabase db2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +97,7 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
                 SystemActivity.this.finish();
                 break;
             case 4:
+                cursor3();
                 break;
 
         }
@@ -130,6 +134,23 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
 
         }
 
+    }
+    private void cursor3(){
+        MyDBhelper2 MyDB2 = new MyDBhelper2(this,"tblOrder2",null,1);
+        db2=MyDB2.getWritableDatabase();
 
+        Cursor c=db2.rawQuery("SELECT * FROM "+"tblTable2", null);
+        ListView lv = (ListView)findViewById(R.id.lv);
+        SimpleCursorAdapter adapter;
+        adapter = new SimpleCursorAdapter(this,
+                android.R.layout.simple_expandable_list_item_2,
+                //R.layout.lview2,
+                c,
+                new String[] {"_id","cUpdateDT"},
+                //new String[] {"_id", "cProductID", "cProductName", "cGoodsNo", "cUpdateDT"},
+                new int[] {android.R.id.text1,android.R.id.text2},
+                //new int[] {R.id.textView19,R.id.textView18,R.id.textView17,R.id.textView16,R.id.textView15},
+                0);
+        lv.setAdapter(adapter);
     }
 }

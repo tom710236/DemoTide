@@ -21,7 +21,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -34,12 +36,13 @@ public class SQLActivity extends AppCompatActivity {
     String url = "http://demo.shinda.com.tw/ModernWebApi/getProduct.aspx";
     ArrayList<ProductInfo> trans;
     private MyDBhelper helper;
-    SQLiteDatabase db;
+    SQLiteDatabase db,db2;
     final String DB_NAME = "tblTable";
     ListView listView;
     ContentValues addbase;
     String ID,name,NO,DT;
     int index;
+    String today;
 
 
     //建立一個類別存JSON
@@ -208,6 +211,9 @@ public class SQLActivity extends AppCompatActivity {
         //放入新增表格
         Get get = new Get();
         get.start();
+        //用來記錄更新次數
+        upDateTimes();
+
 
     }
     public void delThing(View v){
@@ -237,6 +243,21 @@ public class SQLActivity extends AppCompatActivity {
                 new int[] {R.id.textView19,R.id.textView18,R.id.textView17,R.id.textView16,R.id.textView15},
                 0);
         lv.setAdapter(adapter);
+    }
+    private void upDateTimes(){
+        MyDBhelper2 MyDB2 = new MyDBhelper2(this,"tblOrder2",null,1);
+        db2=MyDB2.getWritableDatabase();
+        ContentValues addbase = new ContentValues();
+        time();
+        addbase.put("cUpdateDT",today);
+        db2.insert("tblTable2",null,addbase);
+
+    }
+    private void time(){
+        Calendar mCal = Calendar.getInstance();
+        String dateformat = "yyyy/MM/dd/ HH:mm:ss";
+        SimpleDateFormat df = new SimpleDateFormat(dateformat);
+        today = df.format(mCal.getTime());
     }
 
 
