@@ -2,6 +2,7 @@ package com.example.tom.demotide;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -170,22 +172,35 @@ public class SQLActivity extends AppCompatActivity {
         //放入新增表格
         Get get = new Get();
         get.start();
+
     }
     public void delThing(View v){
         db.delete(DB_NAME,null,null);
+
     }
     public void back (View v){
-        Intent intent = new Intent(SQLActivity.this, SystemActivity.class);
-        Bundle bag = new Bundle();
-        bag.putString("cUserName", cUserName);
-        intent.putExtras(bag);
-        startActivity(intent);
-        SQLActivity.this.finish();
+        cursor3();
     }
     public void out (View v){
         Intent intent = new Intent(SQLActivity.this, MainActivity.class);
         startActivity(intent);
 
+    }
+    private void cursor3(){
+
+        Cursor c=db.rawQuery("SELECT * FROM "+DB_NAME, null);
+        ListView lv = (ListView)findViewById(R.id.listView);
+        SimpleCursorAdapter adapter;
+        adapter = new SimpleCursorAdapter(this,
+                //android.R.layout.simple_expandable_list_item_2,
+                R.layout.lview2,
+                c,
+                //new String[] {"info","amount"},
+                new String[] {"_id", "cProductID", "cProductName", "cGoodsNo", "cUpdateDT"},
+                //new int[] {android.R.id.text1,android.R.id.text2},
+                new int[] {R.id.textView19,R.id.textView18,R.id.textView17,R.id.textView16,R.id.textView15},
+                0);
+        lv.setAdapter(adapter);
     }
 
 
