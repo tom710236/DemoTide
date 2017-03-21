@@ -25,6 +25,10 @@
         <activity android:name=".OrderListActivity" />
         <activity android:name=".OrderThingActivity" />
         <activity android:name=".AddThingsActivity"></activity>
+
+        <service android:name=".Delay"
+            android:enabled="true"
+            android:exported="true"/>
     </application>
 
 </manifest>

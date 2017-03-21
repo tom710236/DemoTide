@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -38,6 +39,8 @@ public class SQLActivity extends AppCompatActivity {
     ListView listView;
     ContentValues addbase;
     String ID,name,NO,DT;
+    int index;
+
 
     //建立一個類別存JSON
     public class ProductInfo {
@@ -97,16 +100,49 @@ public class SQLActivity extends AppCompatActivity {
         });
         ArrayAdapter<String> upTime = new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line);
         //upTime.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        upTime.add("請選擇");
         upTime.add("08:00");
         upTime.add("12:00");
         upTime.add("18:00");
         final Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setAdapter(upTime);
+        spinner.setOnItemSelectedListener
+                (new AdapterView.OnItemSelectedListener() {
+
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        //所點擊的索引值
+                        index = spinner.getSelectedItemPosition();
+                        Log.e("SPINNER", String.valueOf(index));
+                        if (index==1){
+                            Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
+                            //Activity to Service
+                            serviceIntent.putExtra("timeUp", "08:00:00");
+                            SQLActivity.this.startService(serviceIntent);
+                        }
+                        else if(index==2){
+                            Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
+                            serviceIntent.putExtra("timeUp", "12:00:00");
+                            SQLActivity.this.startService(serviceIntent);
+                        }
+                        else if(index==3){
+                            Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
+                            serviceIntent.putExtra("timeUp", "18:00:00");
+                            SQLActivity.this.startService(serviceIntent);
+                        }
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
 
         helper = new MyDBhelper(this, DB_NAME, null, 1);
         //實做 db(繼承SQLiteDatabase)類別 getWritableDatabase用來更新 新增修改刪除
         db = helper.getWritableDatabase();
     }
+
+
+
     class Get extends Thread {
         @Override
         public void run() {
