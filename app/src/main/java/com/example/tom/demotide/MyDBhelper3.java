@@ -1,6 +1,5 @@
 package com.example.tom.demotide;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -9,7 +8,11 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 public class MyDBhelper3 extends SQLiteOpenHelper {
-    public MyDBhelper3 (Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    public MyDBhelper3 (SQLActivity context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+        super(context, name, factory, version);
+    }
+
+    public MyDBhelper3(Delay context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 

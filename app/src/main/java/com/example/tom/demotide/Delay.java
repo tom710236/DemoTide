@@ -3,6 +3,7 @@ package com.example.tom.demotide;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.os.Handler;
@@ -39,12 +40,12 @@ public class Delay extends Service {
     String url = "http://demo.shinda.com.tw/ModernWebApi/getProduct.aspx";
     ArrayList<ProductInfo> trans;
     private MyDBhelper helper;
-    SQLiteDatabase db,db2;
+    SQLiteDatabase db,db2,db3;
     final String DB_NAME = "tblTable";
     ListView listView;
     ContentValues addbase;
     String ID,name,NO,DT;
-    String today,today2;
+    String today,today2,timeUp2="07:00:00";
     //建構子
     public Delay(){
 
@@ -59,10 +60,11 @@ public class Delay extends Service {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void run() {
+                getTimeUp();
                 timeUp();
                 Log.e("today",today);
-                Log.e("timeUp",timeUp);
-                if(today.equals(timeUp)){
+                Log.e("timpUP2",timeUp2);
+                if(today.equals(timeUp2)){
                     helper = new MyDBhelper(Delay.this, DB_NAME, null, 1);
                     //實做 db(繼承SQLiteDatabase)類別 getWritableDatabase用來更新 新增修改刪除
                     db = helper.getWritableDatabase();
@@ -192,6 +194,27 @@ public class Delay extends Service {
         String dateformat = "yyyy/MM/dd/ HH:mm:ss";
         SimpleDateFormat df = new SimpleDateFormat(dateformat);
         today2 = df.format(mCal.getTime());
+    }
+    private void getTimeUp(){
+        MyDBhelper3 MyDB3 = new MyDBhelper3(Delay.this,"tblTable3",null,1);
+        db3=MyDB3.getWritableDatabase();
+
+        //Cursor c=db2.rawQuery("SELECT * FROM "+"tblTable2", null);   //查詢全部欄位
+        Cursor c = db3.query("tblTable3",                          // 資料表名字
+                null,                                              // 要取出的欄位資料
+                null,                                              // 查詢條件式(WHERE)
+                null,                                              // 查詢條件值字串陣列(若查詢條件式有問號 對應其問號的值)
+                null,                                              // Group By字串語法
+                null,                                              // Having字串法
+                null);                                             // Order By字串語法(排序)
+        //往下一個 收尋
+        while(c.moveToNext()) {
+            timeUp2 = c.getString(c.getColumnIndex("timeUp"));
+            //Log.e("timeUp2",timeUp2);
+        }
+        //Log.e("dateUp2222",timeUp2);
+
+
     }
 
 }

@@ -36,14 +36,14 @@ public class SQLActivity extends AppCompatActivity {
     String url = "http://demo.shinda.com.tw/ModernWebApi/getProduct.aspx";
     ArrayList<ProductInfo> trans;
     private MyDBhelper helper;
-    SQLiteDatabase db,db2;
+    SQLiteDatabase db,db2,db3;
     final String DB_NAME = "tblTable";
     ListView listView;
     ContentValues addbase;
     String ID,name,NO,DT;
     int index;
     String today;
-    String timeUp;
+    String timeUp,tblTable3;
 
     //建立一個類別存JSON
     public class ProductInfo {
@@ -119,32 +119,41 @@ public class SQLActivity extends AppCompatActivity {
                         index = spinner.getSelectedItemPosition();
                         Log.e("SPINNER", String.valueOf(index));
                         if (index==1){
-
-                            Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
+                            //把資料存在SQL Service去SQL抓
+                            //Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
                             //先停止前一個Service
-                            stopService(serviceIntent);
+                            //stopService(serviceIntent);
                             //Activity to Service
-                            timeUp="08:00:00";
-                            serviceIntent.putExtra("timeUp", timeUp);
-                            SQLActivity.this.startService(serviceIntent);
+                            //serviceIntent.putExtra("timeUp", timeUp);
+                            //SQLActivity.this.startService(serviceIntent);
+                            timeUp="19:15:00";
+                            MyDBhelper3 myDB3 = new MyDBhelper3(SQLActivity.this,"tblTable3",null,1);
+                            db3=myDB3.getWritableDatabase();
+                            ContentValues addbase = new ContentValues();
+                            addbase.put("timeUp",timeUp);
+                            db3.insert("tblTable3",null,addbase);
 
 
 
 
                         }
                         else if(index==2){
-                            Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
-                            stopService(serviceIntent);
+
                             timeUp="12:00:00";
-                            serviceIntent.putExtra("timeUp", "12:00:00");
-                            SQLActivity.this.startService(serviceIntent);
+                            MyDBhelper3 myDB3 = new MyDBhelper3(SQLActivity.this,"tblTable3",null,1);
+                            db3=myDB3.getWritableDatabase();
+                            ContentValues addbase = new ContentValues();
+                            addbase.put("timeUp",timeUp);
+                            db3.insert("tblTable3",null,addbase);
                         }
                         else if(index==3){
-                            Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
-                            stopService(serviceIntent);
+
                             timeUp="18:00:00";
-                            serviceIntent.putExtra("timeUp", "18:00:00");
-                            SQLActivity.this.startService(serviceIntent);
+                            MyDBhelper3 myDB3 = new MyDBhelper3(SQLActivity.this,"tblTable3",null,1);
+                            db3=myDB3.getWritableDatabase();
+                            ContentValues addbase = new ContentValues();
+                            addbase.put("timeUp",timeUp);
+                            db3.insert("tblTable3",null,addbase);
                         }
                     }
                     @Override

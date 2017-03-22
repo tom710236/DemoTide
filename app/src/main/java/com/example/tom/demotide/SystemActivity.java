@@ -20,7 +20,7 @@ import static com.example.tom.demotide.R.layout.lview;
 
 public class SystemActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    String cUserName,dateUp,dateUp2;
+    String cUserName,dateUp=null,dateUp2="產品資訊撈取";
     SQLiteDatabase db,db2;
     int i=0,i2=0;
 
@@ -29,9 +29,14 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_system);
-        cursor3();
-        dateUp2="產品資訊撈取"+"("+i2+")"+"\n"+dateUp+"("+i+")";
-        Log.e("DATAUP222",dateUp2);
+
+
+        //cursor3();
+        //dateUp2="產品資訊撈取"+"("+i2+")"+"\n"+dateUp+"("+i+")";
+        //Log.e("DATAUP222",dateUp2);
+        Intent intent2 = new Intent(this,Delay.class);
+        stopService(intent2);
+        startService(intent2);
 
 
 
@@ -111,6 +116,7 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
 
 
     class IconAdapter extends BaseAdapter {
+
         String[] func = {"出貨單檢貨", "採購單點貨", "儲位與商品管理", "系統管理",
                 dateUp2};
 
@@ -151,6 +157,7 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
     private void cursor3(){
         MyDBhelper2 MyDB2 = new MyDBhelper2(this,"tblOrder2",null,1);
         db2=MyDB2.getWritableDatabase();
+
         //Cursor c=db2.rawQuery("SELECT * FROM "+"tblTable2", null);   //查詢全部欄位
         Cursor c = db2.query("tblTable2",                          // 資料表名字
                 null,                                              // 要取出的欄位資料
@@ -159,7 +166,7 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
                 null,                                              // Group By字串語法
                 null,                                              // Having字串法
                 null);                                             // Order By字串語法(排序)
-        //往下一個 收詢
+        //往下一個 收尋
         while(c.moveToNext()) {
             dateUp = c.getString(c.getColumnIndex("cUpdateDT"));
             Log.e("email",dateUp);
