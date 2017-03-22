@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,17 +19,21 @@ import android.widget.TextView;
 import static com.example.tom.demotide.R.layout.lview;
 
 public class SystemActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    String[] func = {"出貨單檢貨", "採購單點貨", "儲位與商品管理", "系統管理",
-            "產品資訊撈取"};
-    //int陣列方式將功能儲存在icons陣列
-    int[] icons = {R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp
-            , R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp};
-    String cUserName;
-    SQLiteDatabase db2;
+
+    String cUserName,dateUp,dateUp2;
+    SQLiteDatabase db,db2;
+    int i=0,i2=0;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_system);
+        cursor3();
+        dateUp2="產品資訊撈取"+"("+i2+")"+"\n"+dateUp+"("+i+")";
+        Log.e("DATAUP222",dateUp2);
+
+
 
         //Toolbar 設定
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -103,7 +108,15 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
         }
     }
 
+
+
     class IconAdapter extends BaseAdapter {
+        String[] func = {"出貨單檢貨", "採購單點貨", "儲位與商品管理", "系統管理",
+                dateUp2};
+
+        //int陣列方式將功能儲存在icons陣列
+        int[] icons = {R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp
+                , R.drawable.ic_keyboard_arrow_right_black_24dp, R.drawable.ic_keyboard_arrow_right_black_24dp};
         @Override
         public int getCount() {
             return func.length;
@@ -138,8 +151,43 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
     private void cursor3(){
         MyDBhelper2 MyDB2 = new MyDBhelper2(this,"tblOrder2",null,1);
         db2=MyDB2.getWritableDatabase();
+        //Cursor c=db2.rawQuery("SELECT * FROM "+"tblTable2", null);   //查詢全部欄位
+        Cursor c = db2.query("tblTable2",                          // 資料表名字
+                null,                                              // 要取出的欄位資料
+                null,                                              // 查詢條件式(WHERE)
+                null,                                              // 查詢條件值字串陣列(若查詢條件式有問號 對應其問號的值)
+                null,                                              // Group By字串語法
+                null,                                              // Having字串法
+                null);                                             // Order By字串語法(排序)
+        //往下一個 收詢
+        while(c.moveToNext()) {
+            dateUp = c.getString(c.getColumnIndex("cUpdateDT"));
+            Log.e("email",dateUp);
+        }
+            i=c.getCount();
+            Log.e("dateUp",dateUp);
+            Log.e("i", String.valueOf(i));
 
-        Cursor c=db2.rawQuery("SELECT * FROM "+"tblTable2", null);
+        /***********************************************************
+         * 另一個SQL
+         */
+        MyDBhelper MyDB = new MyDBhelper(this,"tblTable",null,1);
+        db=MyDB.getWritableDatabase();
+        Cursor c2 = db.query("tblTable",                          // 資料表名字
+                null,                                              // 要取出的欄位資料
+                null,                                              // 查詢條件式(WHERE)
+                null,                                              // 查詢條件值字串陣列(若查詢條件式有問號 對應其問號的值)
+                null,                                              // Group By字串語法
+                null,                                              // Having字串法
+                null);
+        i2=c2.getCount();
+        Log.e("I2", String.valueOf(i2));
+
+        dateUp2="產品資訊撈取"+"("+i2+")"+"\n"+dateUp+"("+i+")";
+        Log.e("DATAUP2",dateUp2);
+
+
+
         ListView lv = (ListView)findViewById(R.id.lv);
         SimpleCursorAdapter adapter;
         adapter = new SimpleCursorAdapter(this,
@@ -152,5 +200,7 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
                 //new int[] {R.id.textView19,R.id.textView18,R.id.textView17,R.id.textView16,R.id.textView15},
                 0);
         lv.setAdapter(adapter);
+
     }
+
 }

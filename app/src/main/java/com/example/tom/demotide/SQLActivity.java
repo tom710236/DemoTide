@@ -43,7 +43,7 @@ public class SQLActivity extends AppCompatActivity {
     String ID,name,NO,DT;
     int index;
     String today;
-
+    String timeUp;
 
     //建立一個類別存JSON
     public class ProductInfo {
@@ -96,6 +96,7 @@ public class SQLActivity extends AppCompatActivity {
                 Intent intent = new Intent(SQLActivity.this, SystemActivity.class);
                 Bundle bag = new Bundle();
                 bag.putString("cUserName", cUserName);
+                bag.putString("timeUp",timeUp);
                 intent.putExtras(bag);
                 startActivity(intent);
                 SQLActivity.this.finish();
@@ -118,18 +119,30 @@ public class SQLActivity extends AppCompatActivity {
                         index = spinner.getSelectedItemPosition();
                         Log.e("SPINNER", String.valueOf(index));
                         if (index==1){
+
                             Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
+                            //先停止前一個Service
+                            stopService(serviceIntent);
                             //Activity to Service
-                            serviceIntent.putExtra("timeUp", "08:00:00");
+                            timeUp="08:00:00";
+                            serviceIntent.putExtra("timeUp", timeUp);
                             SQLActivity.this.startService(serviceIntent);
+
+
+
+
                         }
                         else if(index==2){
                             Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
+                            stopService(serviceIntent);
+                            timeUp="12:00:00";
                             serviceIntent.putExtra("timeUp", "12:00:00");
                             SQLActivity.this.startService(serviceIntent);
                         }
                         else if(index==3){
                             Intent serviceIntent = new Intent(SQLActivity.this,Delay.class);
+                            stopService(serviceIntent);
+                            timeUp="18:00:00";
                             serviceIntent.putExtra("timeUp", "18:00:00");
                             SQLActivity.this.startService(serviceIntent);
                         }

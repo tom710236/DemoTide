@@ -16,11 +16,11 @@
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
-        android:layout_height="29dp"
-        android:layout_weight="0.40"
+        android:layout_height="56dp"
+        android:layout_weight="0.39"
         android:gravity="center_vertical"
         android:text="TextView"
-        android:textAppearance="@style/TextAppearance.AppCompat" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <ImageView android:id="@+id/img"
         android:layout_width="wrap_content"

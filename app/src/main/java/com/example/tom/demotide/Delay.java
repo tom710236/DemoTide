@@ -71,12 +71,15 @@ public class Delay extends Service {
                     Get get = new Get();
                     get.start();
                     upDateTimes();
+
+
                 }
                 handler.postAtTime(this,android.os.SystemClock.uptimeMillis()+1000);
             }
         };
         handler.postAtTime(runnable,android.os.SystemClock.uptimeMillis()+1000);
-        return super.onStartCommand(intent, flags, startId);
+        //return super.onStartCommand(intent, flags, startId);
+        return START_NOT_STICKY;
     }
     //stopService後
     //執行Log.e("STOP","STOP") ,handler.removeCallbacks(runnable);
@@ -181,7 +184,7 @@ public class Delay extends Service {
         db2=MyDB2.getWritableDatabase();
         ContentValues addbase = new ContentValues();
         time();
-        addbase.put("cUpdateDT TEXT",today2);
+        addbase.put("cUpdateDT",today2);
         db2.insert("tblTable2",null,addbase);
     }
     private void time(){
@@ -190,4 +193,5 @@ public class Delay extends Service {
         SimpleDateFormat df = new SimpleDateFormat(dateformat);
         today2 = df.format(mCal.getTime());
     }
+
 }
