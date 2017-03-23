@@ -3,6 +3,7 @@ package com.example.tom.demotide;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -12,6 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -24,8 +27,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+
 public class AddThingsActivity extends AppCompatActivity {
-    String cUserName,lackNoAdd,lackNameAdd;
+    String cUserName,lackNoAdd,lackNameAdd,tblTable4;
     SQLiteDatabase db4;
     String url="http://demo.shinda.com.tw/ModernWebApi/LackAPI.aspx";
 
@@ -84,10 +88,11 @@ public class AddThingsActivity extends AppCompatActivity {
                         Log.e("LACKNOADD", lackNoAdd);
                         Log.e("LACKNOADD", lackNameAdd);
                         //把字串放入SQL
-                        putSQL(lackNoAdd,lackNameAdd);
+                        //putSQL();
                         //POST 字串
                         Pass pass = new Pass();
                         pass.start();
+
 
 
                     }
@@ -95,14 +100,32 @@ public class AddThingsActivity extends AppCompatActivity {
                 }).show();
     }
     //把字串放入SQL
-    private void putSQL(String NO,String name){
+    private void putSQL(){
 
         MyDBhelper4 myDB4 = new MyDBhelper4(AddThingsActivity.this,"tblTable4",null,1);
         db4=myDB4.getWritableDatabase();
         ContentValues addbase = new ContentValues();
-        addbase.put("LackNo",NO);
-        addbase.put("LackName",name);
+        addbase.put("LackNo","ackNoAdd");
+        addbase.put("LackName","lackNameAdd");
         db4.insert("tblTable4",null,addbase);
+    }
+    //顯示SQL
+    private void cursor3(){
+        MyDBhelper4 myDB4 = new MyDBhelper4(AddThingsActivity.this,"tblTable4",null,1);
+        db4=myDB4.getWritableDatabase();
+        Cursor c=db4.rawQuery("SELECT * FROM "+"tblTable4", null);
+        ListView lv = (ListView)findViewById(R.id.list);
+        SimpleCursorAdapter adapter;
+        adapter = new SimpleCursorAdapter(this,
+                //android.R.layout.simple_expandable_list_item_2,
+                android.R.layout.simple_list_item_multiple_choice,
+                c,
+                //new String[] {"info","amount"},
+                new String[] {"LackNo", "LackName"},
+                //new int[] {android.R.id.text1,android.R.id.text2},
+                new int[] {R.id.textView20,R.id.textView21},
+                0);
+        lv.setAdapter(adapter);
     }
     //POST JSON的方法
     class Pass extends Thread {
@@ -137,6 +160,7 @@ public class AddThingsActivity extends AppCompatActivity {
             });
         }
     }
+
 
 
 
