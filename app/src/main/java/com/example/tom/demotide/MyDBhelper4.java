@@ -15,7 +15,11 @@ public class MyDBhelper4 extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
+        final String create =
+                ("CREATE TABLE tblTable4 (_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                        + "LackNo TEXT, "
+                        + "LackName TEXT);");
+        db.execSQL(create);
     }
 
     @Override

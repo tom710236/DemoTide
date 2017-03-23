@@ -1,21 +1,40 @@
 package com.example.tom.demotide;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 public class AddThingsActivity extends AppCompatActivity {
-    String cUserName;
+    String cUserName,lackNoAdd,lackNameAdd;
+    SQLiteDatabase db4;
+    String url="http://demo.shinda.com.tw/ModernWebApi/LackAPI.aspx";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_things);
+
+
 
         Intent intent = getIntent();
         //取得Bundle物件後 再一一取得資料
@@ -54,9 +73,71 @@ public class AddThingsActivity extends AppCompatActivity {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        //取得輸入的字串 注意item
+                        //String lackNoAdd,lackNameAdd;
+
+                        EditText lackNo =(EditText)item.findViewById(R.id.editText6);
+                        EditText lackName = (EditText)item.findViewById(R.id.editText4);
+                        lackNoAdd = lackNo.getText().toString();
+                        lackNameAdd = lackName.getText().toString();
+
+                        Log.e("LACKNOADD", lackNoAdd);
+                        Log.e("LACKNOADD", lackNameAdd);
+                        //把字串放入SQL
+                        putSQL(lackNoAdd,lackNameAdd);
+                        //POST 字串
+                        Pass pass = new Pass();
+                        pass.start();
+
 
                     }
+
                 }).show();
     }
+    //把字串放入SQL
+    private void putSQL(String NO,String name){
+
+        MyDBhelper4 myDB4 = new MyDBhelper4(AddThingsActivity.this,"tblTable4",null,1);
+        db4=myDB4.getWritableDatabase();
+        ContentValues addbase = new ContentValues();
+        addbase.put("LackNo",NO);
+        addbase.put("LackName",name);
+        db4.insert("tblTable4",null,addbase);
+    }
+    //POST JSON的方法
+    class Pass extends Thread {
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = "{\"Token\": \"xxxxxxxxxxxxxxxxxxxxxxxx\", \"Action\": \"add\", \"UserID\": \"test\", \"LackInfo\": {\"LackNo\": \""+lackNoAdd+"\", \"LackName\": \""+lackNameAdd+"\"}}";
+            Log.e("JSON",json);
+            RequestBody body = RequestBody.create(JSON,json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            Log.e("UP", body.toString());
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("OkHttp", response.toString());
+                    Log.e("OkHttp2", json);
+                }
+            });
+        }
+    }
+
+
 
 }

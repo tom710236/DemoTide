@@ -23,7 +23,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
-    String cStatus, userName, passWord,cUserName;
+    String cStatus, userName, passWord, cUserName;
     String url = "http://demo.shinda.com.tw/ModernWebApi/WebApiLogin.aspx";
 
 
@@ -33,12 +33,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SharedPreferences setting =
-                getSharedPreferences("Login",MODE_PRIVATE);
-        EditText uId = (EditText)findViewById(R.id.userName);
-        uId.setText(setting.getString("userName",""));
+                getSharedPreferences("Login", MODE_PRIVATE);
+        EditText uId = (EditText) findViewById(R.id.userName);
+        uId.setText(setting.getString("userName", ""));
     }
 
-    public void login (View v){
+    public void login(View v) {
         Pass pass = new Pass();
         pass.start();
     }
@@ -51,8 +51,7 @@ public class MainActivity extends AppCompatActivity {
             EditText uPw = (EditText) findViewById(R.id.passWord);
             userName = uId.getText().toString();
             passWord = uPw.getText().toString();
-            //使用OkHttp post
-            //先建立OkHttpClient
+
             final OkHttpClient client = new OkHttpClient();
             //要上傳的內容(JSON)--帳號登入
             RequestBody body = new FormBody.Builder()
@@ -75,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onFailure(Call call, IOException e) {
 
                 }
+
                 //post 成功後執行
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
@@ -98,29 +98,28 @@ public class MainActivity extends AppCompatActivity {
                         cUserName = new JSONObject(json).getString("cUserName");
                         Log.e("JSOM", cStatus);
                         //回傳的cStatus為1時 登入成功
-                        if(cStatus.equals("1")){
+                        if (cStatus.equals("1")) {
                             //到另一頁 用Bundle把所需資料帶到另一頁
-                            Intent intent = new Intent(MainActivity.this,SystemActivity.class);
+                            Intent intent = new Intent(MainActivity.this, SystemActivity.class);
                             Bundle bag = new Bundle();
-                            bag.putString("cUserName",cUserName);
+                            bag.putString("cUserName", cUserName);
                             intent.putExtras(bag);
                             startActivity(intent);
                             MainActivity.this.finish();
                             //記住帳號
                             SharedPreferences setting =
-                                    getSharedPreferences("Login",MODE_PRIVATE);
+                                    getSharedPreferences("Login", MODE_PRIVATE);
                             setting.edit()
-                                    .putString("userName",userName)
+                                    .putString("userName", userName)
                                     .commit();
 
 
-                        }
-                        else{
+                        } else {
                             //非主執行緒顯示UI(Toast)
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(MainActivity.this,"登入失敗 請重新輸入", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(MainActivity.this, "登入失敗 請重新輸入", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
