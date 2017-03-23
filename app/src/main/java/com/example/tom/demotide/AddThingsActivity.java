@@ -10,14 +10,25 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -29,16 +40,34 @@ import okhttp3.Response;
 
 
 public class AddThingsActivity extends AppCompatActivity {
-    String cUserName,lackNoAdd,lackNameAdd,tblTable4;
+    String cUserName,lackNoAdd,lackNameAdd,tblTable4,listname;
     SQLiteDatabase db4;
+    int index;
+    List<String> checked;
+    //儲位API
     String url="http://demo.shinda.com.tw/ModernWebApi/LackAPI.aspx";
-
+    //把JSON 類別化
+    public class ProductInfo {
+        private String mLackNo;
+        private String mLackName;
+        //建構子
+        ProductInfo(final String LackNo, final String LackName) {
+            this.mLackNo = LackNo;
+            this.mLackName = LackName;
+        }
+        //方法
+        @Override
+        public String toString() {
+            return this.mLackNo + "-" + this.mLackName;
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_things);
 
-
+        PassList passList = new PassList();
+        passList.start();
 
         Intent intent = getIntent();
         //取得Bundle物件後 再一一取得資料
@@ -127,7 +156,7 @@ public class AddThingsActivity extends AppCompatActivity {
                 0);
         lv.setAdapter(adapter);
     }
-    //POST JSON的方法
+    //POST 新增Lack JSON的方法
     class Pass extends Thread {
         @Override
         public void run() {
@@ -161,7 +190,103 @@ public class AddThingsActivity extends AppCompatActivity {
         }
     }
 
+    class PassList extends Thread {
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = "{\"Token\":\"\" ,\"Action\":\"list\"}";
+            Log.e("JSON",json);
+            RequestBody body = RequestBody.create(JSON,json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            Log.e("UP", body.toString());
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
 
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("OkHttp3", response.toString());
+                    Log.e("OkHttp4", json);
+                    int i = json.length();
+                    String json2=json.substring(25,i-1);
+                    Log.e("JSON2",json2);
+                    parseJson2(json2);
+                }
+            });
+
+        }
+    }
+
+    private void parseJson2(String json2) {
+        try {
+            final ArrayList<String> trans = new ArrayList<String>();
+            final JSONArray array = new JSONArray(json2);
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                //取得標題為"cShippersID"的內容
+                listname = obj.getString("LackNo")+"-"+obj.getString("LackName");
+                Log.e("okHTTP8", listname);
+                //ArrayList新增listname項目
+                trans.add(listname);
+                Log.e("trans", String.valueOf(trans));
+            }
+
+            final ListView listView = (ListView)findViewById(R.id.list);
+            // 設定 ListView 選擇的方式 :
+            // 單選 : ListView.CHOICE_MODE_SINGLE
+            // 多選 : ListView.CHOICE_MODE_MULTIPLE
+            listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+            // 陣列接收器
+            // RadioButton Layout 樣式 : android.R.layout.simple_list_item_single_choice
+            // CheckBox Layout 樣式    : android.R.layout.simple_list_item_multiple_choice
+            // trans 是陣列
+            final ArrayAdapter<String> list = new ArrayAdapter<>(
+                    AddThingsActivity.this,
+                    android.R.layout.simple_list_item_multiple_choice,
+                    trans);
+                    //顯示出listView
+                    listView.setVisibility(View.VISIBLE);
+                    //設定 ListView 的接收器, 做為選項的來源
+                    listView.setAdapter(list);
+                    //假如選到請選擇 list將不會出現
+
+            //ListView的點擊方法
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                    AbsListView list = (AbsListView)adapterView;
+                    Adapter adapter = list.getAdapter();
+                    SparseBooleanArray array = list.getCheckedItemPositions();
+                    checked = new ArrayList<>(list.getCheckedItemCount());
+                    for (int i = 0; i < array.size(); i++) {
+                        int key = array.keyAt(i);
+                        if (array.get(key)) {
+                            checked.add((String) adapter.getItem(key));
+                            Log.e("CHECK", String.valueOf(checked));
+
+                        }
+
+                    }
+                }
+            });
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.e("CHECKED", String.valueOf(checked));
+    }
 
 
 }

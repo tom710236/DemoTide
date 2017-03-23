@@ -87,8 +87,9 @@ public class OrderActivity extends AppCompatActivity {
         //先取得字串的長度
         int i = check.length();
         //再取字串範圍 (0和最後是[])
-        //取代
+        //回傳指定範圍(1.i-1)第二個和倒數第二個
         check2 = check.substring(1, i - 1);
+        Log.e("check2", "check2: " + check2);
         //check3 = check2.replaceAll(", ", ",");
         check3 = check2.replaceAll(", ", ",");
         Log.e("check3", "check3: " + check3);
