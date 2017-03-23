@@ -20,7 +20,7 @@ import static com.example.tom.demotide.R.layout.lview;
 
 public class SystemActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    String cUserName,dateUp=null,dateUp2="產品資訊撈取";
+    String cUserName,dateUp=null,dateUp2;
     SQLiteDatabase db,db2;
     int i=0,i2=0;
 
@@ -31,12 +31,16 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
         setContentView(R.layout.activity_system);
 
 
-        //cursor3();
-        //dateUp2="產品資訊撈取"+"("+i2+")"+"\n"+dateUp+"("+i+")";
-        //Log.e("DATAUP222",dateUp2);
+        cursor3();
+        dateUp2="產品資訊撈取"+"("+i2+")"+"\n"+dateUp+"("+i+")";
+        Log.e("DATAUP222",dateUp2);
         Intent intent2 = new Intent(this,Delay.class);
         stopService(intent2);
         startService(intent2);
+
+
+
+
 
 
 
@@ -169,11 +173,11 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
         //往下一個 收尋
         while(c.moveToNext()) {
             dateUp = c.getString(c.getColumnIndex("cUpdateDT"));
-            Log.e("email",dateUp);
+            //Log.e("email",dateUp);
         }
             i=c.getCount();
-            Log.e("dateUp",dateUp);
-            Log.e("i", String.valueOf(i));
+            //Log.e("dateUp",dateUp);
+           // Log.e("i", String.valueOf(i));
 
         /***********************************************************
          * 另一個SQL
@@ -188,10 +192,10 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
                 null,                                              // Having字串法
                 null);
         i2=c2.getCount();
-        Log.e("I2", String.valueOf(i2));
+        //Log.e("I2", String.valueOf(i2));
 
         dateUp2="產品資訊撈取"+"("+i2+")"+"\n"+dateUp+"("+i+")";
-        Log.e("DATAUP2",dateUp2);
+       //Log.e("DATAUP2",dateUp2);
 
 
 

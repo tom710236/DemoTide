@@ -126,7 +126,7 @@ public class SQLActivity extends AppCompatActivity {
                             //Activity to Service
                             //serviceIntent.putExtra("timeUp", timeUp);
                             //SQLActivity.this.startService(serviceIntent);
-                            timeUp="19:15:00";
+                            timeUp="09:59";
                             MyDBhelper3 myDB3 = new MyDBhelper3(SQLActivity.this,"tblTable3",null,1);
                             db3=myDB3.getWritableDatabase();
                             ContentValues addbase = new ContentValues();
@@ -139,7 +139,7 @@ public class SQLActivity extends AppCompatActivity {
                         }
                         else if(index==2){
 
-                            timeUp="12:00:00";
+                            timeUp="12:00";
                             MyDBhelper3 myDB3 = new MyDBhelper3(SQLActivity.this,"tblTable3",null,1);
                             db3=myDB3.getWritableDatabase();
                             ContentValues addbase = new ContentValues();
@@ -148,7 +148,7 @@ public class SQLActivity extends AppCompatActivity {
                         }
                         else if(index==3){
 
-                            timeUp="18:00:00";
+                            timeUp="18:00";
                             MyDBhelper3 myDB3 = new MyDBhelper3(SQLActivity.this,"tblTable3",null,1);
                             db3=myDB3.getWritableDatabase();
                             ContentValues addbase = new ContentValues();

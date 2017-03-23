@@ -45,7 +45,7 @@ public class Delay extends Service {
     ListView listView;
     ContentValues addbase;
     String ID,name,NO,DT;
-    String today,today2,timeUp2="07:00:00";
+    String today,today2,timeUp2="07:00";
     //建構子
     public Delay(){
 
@@ -76,10 +76,10 @@ public class Delay extends Service {
 
 
                 }
-                handler.postAtTime(this,android.os.SystemClock.uptimeMillis()+1000);
+                handler.postAtTime(this,android.os.SystemClock.uptimeMillis()+60*1000);
             }
         };
-        handler.postAtTime(runnable,android.os.SystemClock.uptimeMillis()+1000);
+        handler.postAtTime(runnable,android.os.SystemClock.uptimeMillis()+60*1000);
         //return super.onStartCommand(intent, flags, startId);
         return START_NOT_STICKY;
     }
@@ -177,7 +177,7 @@ public class Delay extends Service {
     }
     private void timeUp(){
         Calendar mCal = Calendar.getInstance();
-        String dateformat = "HH:mm:ss";
+        String dateformat = "HH:mm";
         SimpleDateFormat df = new SimpleDateFormat(dateformat);
         today = df.format(mCal.getTime());
     }
