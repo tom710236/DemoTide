@@ -38,6 +38,8 @@ public class SystemActivity extends AppCompatActivity implements AdapterView.OnI
         stopService(intent2);
         startService(intent2);
 
+        Intent intent4 = new Intent(this, RegistrationIntentService.class);
+        startService(intent4);
 
 
 

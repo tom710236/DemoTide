@@ -2,7 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.tom.demotide">
 
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission
+        android:name="com.example.tom.demotide.gcm.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.example.tom.demotide.gcm.permission.C2D_MESSAGE" />
 
     <application
         android:allowBackup="true"
@@ -24,11 +34,39 @@
         <activity android:name=".OrderActivity" />
         <activity android:name=".OrderListActivity" />
         <activity android:name=".OrderThingActivity" />
-        <activity android:name=".AddThingsActivity"></activity>
+        <activity android:name=".AddThingsActivity" />
 
-        <service android:name=".Delay"
+        <service
+            android:name=".Delay"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
+
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.tom.stock" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".MyGcmListenerService">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".RegistrationIntentService"
+            android:exported="false"></service>
+        <service android:name=".MyInstanceIDListenerService">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".ChatActivity"></activity>
     </application>
 
 </manifest>

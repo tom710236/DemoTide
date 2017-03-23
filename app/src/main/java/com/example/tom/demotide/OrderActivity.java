@@ -275,7 +275,7 @@ public class OrderActivity extends AppCompatActivity {
                 }
             }
             else if(addNum==0){
-
+                //對話框
                 final View item = LayoutInflater.from(OrderActivity.this).inflate(R.layout.activity_alertdialog, null);
                 new AlertDialog.Builder(OrderActivity.this)
                         .setTitle("請輸入數量")

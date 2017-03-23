@@ -1,9 +1,12 @@
 package com.example.tom.demotide;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
@@ -41,4 +44,19 @@ public class AddThingsActivity extends AppCompatActivity {
             }
         });
     }
+    public void onAdd (View v){
+        //對話框
+        final View item = LayoutInflater.from(AddThingsActivity.this).inflate(R.layout.activity_alertdialog2, null);
+        new AlertDialog.Builder(AddThingsActivity.this)
+                .setTitle("")
+                .setView(item)
+                .setNegativeButton("取消", null)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).show();
+    }
+
 }

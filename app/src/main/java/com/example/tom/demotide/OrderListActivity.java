@@ -216,7 +216,7 @@ public class OrderListActivity extends AppCompatActivity {
                 String json2 = response.body().string();
                 Log.e("OkHttp6", response.toString());
                 Log.e("OkHttp7", json2);
-                parseJson2(json2);
+                //parseJson2(json2);
             }
         });
     }
