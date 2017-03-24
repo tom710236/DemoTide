@@ -20,7 +20,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ThingsActivity extends AppCompatActivity {
     String trans,LackNo2,LackNo3;
@@ -29,7 +28,7 @@ public class ThingsActivity extends AppCompatActivity {
     String cProductName;
     int Count;
     ArrayList<ProductInfo> transAdd;
-    List<String> checked;
+    ArrayList<ProductInfo> checked;
 
     public class ProductInfo {
         private String mProductName;
@@ -142,11 +141,11 @@ public class ThingsActivity extends AppCompatActivity {
                 AbsListView list = (AbsListView)adapterView;
                 Adapter adapter = list.getAdapter();
                 SparseBooleanArray array = list.getCheckedItemPositions();
-                checked = new ArrayList<>(list.getCheckedItemCount());
+                checked = new ArrayList<ProductInfo>(list.getCheckedItemCount());
                 for (int i = 0; i < array.size(); i++) {
                     int key = array.keyAt(i);
                     if (array.get(key)) {
-                        checked.add((String) adapter.getItem(key));
+                        checked.add((ProductInfo) adapter.getItem(key));
                         Log.e("CHECK", String.valueOf(checked));
 
                     }
