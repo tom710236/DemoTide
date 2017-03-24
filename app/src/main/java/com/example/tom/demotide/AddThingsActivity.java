@@ -43,7 +43,9 @@ public class AddThingsActivity extends AppCompatActivity {
     String cUserName,lackNoAdd,lackNameAdd,tblTable4,listname;
     SQLiteDatabase db4;
     int index;
+    String LackNameTo,LackNo2,LackNo3;
     List<String> checked;
+    ArrayList<String> trans,json2;
     //儲位API
     String url="http://demo.shinda.com.tw/ModernWebApi/LackAPI.aspx";
     //把JSON 類別化
@@ -170,7 +172,6 @@ public class AddThingsActivity extends AppCompatActivity {
                     .url(url)
                     .post(body)
                     .build();
-            Log.e("UP", body.toString());
             //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
             Call call = client.newCall(request);
             //呼叫call類別的enqueue進行排程連線(連線至主機)
@@ -179,7 +180,7 @@ public class AddThingsActivity extends AppCompatActivity {
                 public void onFailure(Call call, IOException e) {
 
                 }
-
+                //
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     String json = response.body().string();
@@ -189,7 +190,7 @@ public class AddThingsActivity extends AppCompatActivity {
             });
         }
     }
-
+    //POST 取得Lack列表
     class PassList extends Thread {
         @Override
         public void run() {
@@ -218,10 +219,20 @@ public class AddThingsActivity extends AppCompatActivity {
                     String json = response.body().string();
                     Log.e("OkHttp3", response.toString());
                     Log.e("OkHttp4", json);
-                    int i = json.length();
-                    String json2=json.substring(25,i-1);
-                    Log.e("JSON2",json2);
-                    parseJson2(json2);
+                    json2 = new ArrayList<String>();
+                    try {
+                        JSONObject j = new JSONObject(json);
+                        for (int i =0; i<j.getJSONArray("LackList").length();i++){
+                            String json0 = j.getJSONArray("LackList").getString(i);
+                            Log.e("json0",json0);
+                            json2.add(json0);
+                        }
+                        Log.e("JSON2222", String.valueOf(json2));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    parseJson2(String.valueOf(json2));
                 }
             });
 
@@ -234,7 +245,6 @@ public class AddThingsActivity extends AppCompatActivity {
             final JSONArray array = new JSONArray(json2);
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
-                //取得標題為"cShippersID"的內容
                 listname = obj.getString("LackNo")+"-"+obj.getString("LackName");
                 Log.e("okHTTP8", listname);
                 //ArrayList新增listname項目
@@ -251,15 +261,24 @@ public class AddThingsActivity extends AppCompatActivity {
             // RadioButton Layout 樣式 : android.R.layout.simple_list_item_single_choice
             // CheckBox Layout 樣式    : android.R.layout.simple_list_item_multiple_choice
             // trans 是陣列
-            final ArrayAdapter<String> list = new ArrayAdapter<>(
+            final   ArrayAdapter<String> list = new ArrayAdapter<>(
                     AddThingsActivity.this,
                     android.R.layout.simple_list_item_multiple_choice,
                     trans);
                     //顯示出listView
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
                     listView.setVisibility(View.VISIBLE);
                     //設定 ListView 的接收器, 做為選項的來源
                     listView.setAdapter(list);
-                    //假如選到請選擇 list將不會出現
+                }
+            });
+
+
+
 
             //ListView的點擊方法
 
@@ -282,11 +301,105 @@ public class AddThingsActivity extends AppCompatActivity {
                 }
             });
 
+            //第二種點擊方式 (長按)
+            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
+                    // 利用索引值取得點擊的項目內容。
+                    String text = trans.get(index);
+                    Log.e("TEXT",text);
+                    // 因為只要取LackNO LackNO在-之前 所以先找出-的位置
+                    int i = text.indexOf('-');
+                    //取出0到-之間的值即LackNo
+                    LackNameTo = text.substring(0, i);
+                    Log.e("LackNameTo",LackNameTo);
+                    // 整理要顯示的文字。
+                    String result = "索引值: " + index + "\n" + "內容: " + LackNameTo;
+                    // 顯示。
+                    //Toast.makeText(AddThingsActivity.this, result, Toast.LENGTH_SHORT).show();
+                    PassList2 passList2 = new PassList2();
+                    passList2.start();
+                    // 回傳 false，長按後該項目被按下的狀態會保持。
+                    return false;
+                }
+            });
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
         Log.e("CHECKED", String.valueOf(checked));
     }
+    //長按後 到下一頁
+    class PassList2 extends Thread {
 
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = "{\"Token\":\"\" ,\"Action\":\"detail\",\"LackNo\":\"" + LackNameTo + "\"}";
+            Log.e("JSON", json);
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            Log.e("UP2", body.toString());
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
 
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("OkHttp5", response.toString());
+                    Log.e("OkHttp6", json);
+                    int i = json.length();
+                    String json2 = json.substring(26, i - 4);
+                    Log.e("JSON2", json2);
+                    parseJson3(json);
+                }
+            });
+
+        }
+
+        private void parseJson3(String json) {
+            try {
+
+                JSONObject jsonObject = new JSONObject(json);
+                String LackNo = jsonObject.getJSONArray("LackList").getString(0);
+                Log.e("LACKNO", String.valueOf(LackNo));
+                JSONObject jsonObject1 = new JSONObject(LackNo);
+                LackNo2 = (String) jsonObject1.get("LackNo");
+                LackNo3 = (String) jsonObject1.get("LackName");
+                Log.e("LACKNO2", LackNo2);
+                Log.e("LACKNO3", LackNo3);
+                trans = new ArrayList<String>();
+                for(int i =0; i<jsonObject1.getJSONArray("LackProduct").length();i++){
+                    String LackNo4 = jsonObject1.getJSONArray("LackProduct").getString(i);
+                    Log.e("LACKNO4", LackNo4);
+                    trans.add(LackNo4);
+                }
+
+                Log.e("TRANS", String.valueOf(trans));
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Intent intent = new Intent(AddThingsActivity.this, ThingsActivity.class);
+            Bundle bag = new Bundle();
+            bag.putString("LackNo2",LackNo2);
+            bag.putString("LackNo3",LackNo3);
+            bag.putString("trans", String.valueOf(trans));
+            intent.putExtras(bag);
+            startActivity(intent);
+
+        }
+
+    }
 }
