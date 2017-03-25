@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -12,8 +13,10 @@ import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,26 +32,9 @@ public class ThingsActivity extends AppCompatActivity {
     int Count;
     ArrayList<ProductInfo> transAdd;
     ArrayList<ProductInfo> checked;
+    ArrayAdapter<ProductInfo> list;
 
-    public class ProductInfo {
-        private String mProductName;
-        private String mProductID;
-        private int mProductCount=0;
 
-        //建構子
-        ProductInfo(final String productName, final String productID, int productCount) {
-            this.mProductName = productName;
-            this.mProductID = productID;
-            this.mProductCount = productCount;
-
-        }
-
-        //方法
-        @Override
-        public String toString() {
-            return this.mProductName + "("+this.mProductCount+")" +"\n"+ "(" + this.mProductID + ")";
-        }
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,7 +103,7 @@ public class ThingsActivity extends AppCompatActivity {
         // RadioButton Layout 樣式 : android.R.layout.simple_list_item_single_choice
         // CheckBox Layout 樣式    : android.R.layout.simple_list_item_multiple_choice
         // trans 是陣列
-        final ArrayAdapter<ProductInfo> list = new ArrayAdapter<>(
+        list = new ArrayAdapter<>(
                 ThingsActivity.this,
                 android.R.layout.simple_list_item_multiple_choice,
                 transAdd);
@@ -153,8 +139,63 @@ public class ThingsActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-
     }
+    public class ProductInfo {
+        private String mProductName;
+        private String mProductID;
+        private int mProductCount=0;
+
+        //建構子
+        ProductInfo(final String productName, final String productID, int productCount) {
+            this.mProductName = productName;
+            this.mProductID = productID;
+            this.mProductCount = productCount;
+
+        }
+
+        //方法
+        @Override
+        public String toString() {
+            return this.mProductName + "("+this.mProductCount+")" +"\n"+ "(" + this.mProductID + ")";
+        }
+    }
+    private ProductInfo getProduct(final String key)
+    {
+        if (TextUtils.isEmpty(key))
+            return null;
+        for (int index = 0; index < transAdd.size(); index++)
+        {
+            ProductInfo product = transAdd.get(index);
+            if (product.mProductID.equals(key))
+                return product;
+        }
+        return null;
+    }
+    public void onClick (View v){
+
+        EditText text = (EditText)findViewById(R.id.editText3);
+        EditText num = (EditText)findViewById(R.id.editText8);
+        final String UserEnterKey = text.getText().toString();
+        //final String UserNum2 =num.getText().toString();
+        final String UserNum = num.getText().toString();
+        final ProductInfo product = getProduct(UserEnterKey);
+        if(UserNum.length()!=0){
+            if(product != null){
+                product.mProductCount= product.mProductCount+Integer.parseInt(UserNum);
+                Log.e("product.mProductCount", String.valueOf(product.mProductCount));
+                list.notifyDataSetChanged();
+
+            }else {
+                Toast.makeText(ThingsActivity.this,"請輸入正確商品條碼或數量", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else {
+            Toast.makeText(ThingsActivity.this,"請輸入正確商品條碼或數量", Toast.LENGTH_SHORT).show();
+        }
+
+        Log.e("TRAINADDD", String.valueOf(transAdd));
+
+//
+    }
+
 }
