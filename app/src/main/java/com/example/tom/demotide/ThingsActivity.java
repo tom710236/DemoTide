@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -128,7 +129,6 @@ public class ThingsActivity extends AppCompatActivity {
         });
 
         //ListView的點擊方法
-        // 會當機
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
@@ -141,13 +141,13 @@ public class ThingsActivity extends AppCompatActivity {
                     if (array.get(key)) {
                         checked.add((ProductInfo) adapter.getItem(key));
                         Log.e("CHECK", String.valueOf(checked));
-
                     }
 
                 }
             }
         });
     }
+
     public class ProductInfo {
         private String mProductName;
         private String mProductID;
@@ -167,7 +167,9 @@ public class ThingsActivity extends AppCompatActivity {
             return this.mProductName + "("+this.mProductCount+")" +"\n"+ "(" + this.mProductID + ")";
         }
     }
+
     //型別(String 之纇的),方法名稱
+    @Nullable
     private ProductInfo getProduct(final String key)
     {
         if (TextUtils.isEmpty(key))
@@ -180,8 +182,8 @@ public class ThingsActivity extends AppCompatActivity {
         }
         return null;
     }
-    public void onClick (View v){
-
+    public void onAdd (View v){
+        Log.e("CHECK1111", String.valueOf(transAdd));
         EditText text = (EditText)findViewById(R.id.editText3);
         EditText num = (EditText)findViewById(R.id.editText8);
         final String UserEnterKey = text.getText().toString();
@@ -192,29 +194,8 @@ public class ThingsActivity extends AppCompatActivity {
             if(product != null){
                 product.mProductCount= product.mProductCount+Integer.parseInt(UserNum);
                 Log.e("product.mProductCount", String.valueOf(product.mProductCount));
-
-                newjson = "{\n" +
-                        "  \"Token\": \"\",\n" +
-                        "  \"Action\": \"update\",\n" +
-                        "  \"UserID\": \"test\",\n" +
-                        "  \"LackInfo\": {\n" +
-                        "    \"LackNo\": \"L0001\",\n" +
-                        "    \"LackName\": \"儲位1\",\n" +
-                        "    \"LackProduct\": [\n" +
-                        "      {\n" +
-                        "        \"ProductID\": \"P000012\",\n" +
-                        "        \"Count\": 5\n" +
-                        "      },\n" +
-                        "      {\n" +
-                        "        \"ProductID\": \"P000055\",\n" +
-                        "        \"Count\": 3\n" +
-                        "      }\n" +
-                        "    ]\n" +
-                        "  }\n" +
-                        "}\n";
-                PassList passList = new PassList();
-                passList.start();
                 list.notifyDataSetChanged();
+                Log.e("CHECK222", String.valueOf(checked));
             }else {
                 Toast.makeText(ThingsActivity.this,"請輸入正確商品條碼或數量", Toast.LENGTH_SHORT).show();
             }
@@ -222,7 +203,7 @@ public class ThingsActivity extends AppCompatActivity {
         else {
             Toast.makeText(ThingsActivity.this,"請輸入正確商品條碼或數量", Toast.LENGTH_SHORT).show();
         }
-        Log.e("ADDADD", String.valueOf(transAdd));
+
 
     }
     class PassList extends Thread {
@@ -259,5 +240,30 @@ public class ThingsActivity extends AppCompatActivity {
 
         }
     }
+    public void onClick (View v){
+        Log.e("CHECK333", String.valueOf(transAdd));
 
+        newjson = "{\n" +
+                "  \"Token\": \"\",\n" +
+                "  \"Action\": \"update\",\n" +
+                "  \"UserID\": \"test\",\n" +
+                "  \"LackInfo\": {\n" +
+                "    \"LackNo\": \"L0001\",\n" +
+                "    \"LackName\": \"儲位1\",\n" +
+                "    \"LackProduct\": [\n" +
+                "      {\n" +
+                "        \"ProductID\": \"P000012\",\n" +
+                "        \"Count\": 5\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"ProductID\": \"P000055\",\n" +
+                "        \"Count\": 3\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}\n";
+        PassList passList = new PassList();
+        passList.start();
+        list.notifyDataSetChanged();
+    }
 }

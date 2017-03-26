@@ -140,11 +140,13 @@
             android:ems="10"
             android:inputType="textPersonName" />
 
-        <TextView
-            android:id="@+id/textView31"
+        <Button
+            android:id="@+id/button13"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="onAdd"
+            android:text="新增" />
 
     </LinearLayout>
 
