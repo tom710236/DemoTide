@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -239,9 +241,10 @@ public class AddThingsActivity extends AppCompatActivity {
         }
     }
 
+
     private void parseJson2(String json2) {
         try {
-            final ArrayList<String> trans = new ArrayList<String>();
+            trans = new ArrayList<String>();
             final JSONArray array = new JSONArray(json2);
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
@@ -274,8 +277,10 @@ public class AddThingsActivity extends AppCompatActivity {
                     listView.setVisibility(View.VISIBLE);
                     //設定 ListView 的接收器, 做為選項的來源
                     listView.setAdapter(list);
+                    Log.e("trans2", String.valueOf(trans));
                 }
             });
+
 
 
 
@@ -298,8 +303,10 @@ public class AddThingsActivity extends AppCompatActivity {
                         }
 
                     }
+
                 }
             });
+            Log.e("trans3", String.valueOf(trans));
 
             //第二種點擊方式 (長按)
             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -328,6 +335,89 @@ public class AddThingsActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         Log.e("CHECKED", String.valueOf(checked));
+
+    }
+    public void onScr (View v){
+        EditText editText = (EditText) findViewById(R.id.editText5);
+        String scr = editText.getText().toString();
+        String checkScr2 = checkScr(scr);
+        if(checkScr2!=null){
+            Log.e("SCR","YES");
+            final ArrayList<String> checkScr3 = new ArrayList<String>();
+            checkScr3.add(checkScr2);
+            final ListView listView = (ListView)findViewById(R.id.list);
+            listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+            final   ArrayAdapter<String> list = new ArrayAdapter<>(
+                    AddThingsActivity.this,
+                    android.R.layout.simple_list_item_multiple_choice,
+                    checkScr3);
+                    //顯示出listView
+                    listView.setVisibility(View.VISIBLE);
+                    //設定 ListView 的接收器, 做為選項的來源
+                    listView.setAdapter(list);
+
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                    AbsListView list = (AbsListView)adapterView;
+                    Adapter adapter = list.getAdapter();
+                    SparseBooleanArray array = list.getCheckedItemPositions();
+                    checked = new ArrayList<>(list.getCheckedItemCount());
+                    for (int i = 0; i < array.size(); i++) {
+                        int key = array.keyAt(i);
+                        if (array.get(key)) {
+                            checked.add((String) adapter.getItem(key));
+                            Log.e("CHECK", String.valueOf(checked));
+
+                        }
+
+                    }
+
+                }
+            });
+
+            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
+                    // 利用索引值取得點擊的項目內容。
+                    String text = checkScr3.get(index);
+                    Log.e("TEXT",text);
+                    // 因為只要取LackNO LackNO在-之前 所以先找出-的位置
+                    int i = text.indexOf('-');
+                    //取出0到-之間的值即LackNo
+                    LackNameTo = text.substring(0, i);
+                    Log.e("LackNameTo",LackNameTo);
+                    // 整理要顯示的文字。
+                    String result = "索引值: " + index + "\n" + "內容: " + LackNameTo;
+                    // 顯示。
+                    //Toast.makeText(AddThingsActivity.this, result, Toast.LENGTH_SHORT).show();
+                    PassList2 passList2 = new PassList2();
+                    passList2.start();
+                    // 回傳 false，長按後該項目被按下的狀態會保持。
+                    return false;
+                }
+            });
+
+        } else {
+            parseJson2(String.valueOf(json2));
+            Toast.makeText(AddThingsActivity.this, "查詢不到結果", Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+    private String checkScr(final String scr ) {
+
+        if (TextUtils.isEmpty(scr))
+            return null;
+        for (int i = 0; i < trans.size(); i++) {
+            String product = trans.get(i);
+            Log.e("PRODUCT",product);
+            if (product.equals(scr)) {
+                return product;
+            }
+
+        }
+        return null;
     }
     //長按後 到下一頁
     class PassList2 extends Thread {
@@ -402,4 +492,5 @@ public class AddThingsActivity extends AppCompatActivity {
         }
 
     }
+
 }

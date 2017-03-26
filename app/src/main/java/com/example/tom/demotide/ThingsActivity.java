@@ -167,6 +167,7 @@ public class ThingsActivity extends AppCompatActivity {
             return this.mProductName + "("+this.mProductCount+")" +"\n"+ "(" + this.mProductID + ")";
         }
     }
+    //型別(String 之纇的),方法名稱
     private ProductInfo getProduct(final String key)
     {
         if (TextUtils.isEmpty(key))
