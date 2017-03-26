@@ -26,7 +26,7 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -34,15 +34,18 @@ import okhttp3.Response;
 
 public class OutActivity extends AppCompatActivity {
     // 宣告
-    String url = "http://demo.shinda.com.tw/ModernWebApi/WebApi.aspx";
+    String url = "http://demo.shinda.com.tw/ModernWebApi/Pickup.aspx";
     String url2 = "http://demo.shinda.com.tw/ModernWebApi/GetShippersByCustomerID.aspx";
     OkHttpClient client = new OkHttpClient();
     String cUserName;
     List<String> checked;
     String door1 = null;
+    ArrayList<String> newCheck;
     int index;
     String name;
-    String listname;
+    String listname,listTotal;
+    ArrayList<String> json2;
+    String json4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,15 +90,20 @@ public class OutActivity extends AppCompatActivity {
 
 
     private void postjson() {
-        //post--客戶
-        RequestBody body = new FormBody.Builder()
-                .add("postdata", "{\"ApiName\":\"GetCustomer\",\"ApiID\":\"S000000001\"}")
-                .build();
+        //post--取撿貨單客戶列表
+        OkHttpClient client = new OkHttpClient();
+        final MediaType JSON
+                = MediaType.parse("application/json; charset=utf-8");
+        String json = "{\"Token\":\"\" ,\"Action\":\"customer\",\"UserID\":\"S000000001\"}";
+        Log.e("JSON",json);
+        RequestBody body = RequestBody.create(JSON,json);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
                 .build();
-        Call call = client.newCall(request);
+        Log.e("UP", body.toString());
+        //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+        okhttp3.Call call = client.newCall(request);
         call.enqueue(new Callback() {
             //post 失敗後
             @Override
@@ -109,32 +117,44 @@ public class OutActivity extends AppCompatActivity {
                 //取得回傳資料json JSON檔陣列
                 //[{"cCustomerID":"C000000001","cCustomerName":"大島屋企業"},{"cCustomerID":"C000000002","cCustomerName":"新達科技"},{"cCustomerID":"C000000003","cCustomerName":"磯法資訊"}]
                 String json = response.body().string();
+                json2 = new ArrayList<String>();
+                try {
+                    JSONObject j = new JSONObject(json);
+                    for(int i=0;i<j.getJSONArray("PickUpCustomers").length();i++){
+                        String json0 = j.getJSONArray("PickUpCustomers").getString(i);
+                        json2.add(json0);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 Log.e("OkHttp3", response.toString());
-                Log.e("OkHttp4", json);
-                parseJson(json);
+                Log.e("OkHttp4", String.valueOf(json2));
+                parseJson(String.valueOf(json2));
             }
         });
     }
 
 
     //POST成功後回傳的值(陣列)取出來 用spinner顯示
-    private void parseJson(final String json) {
+    private void parseJson(final String json2) {
         //取值
         try {
             //建立一個ArrayList
             final ArrayList<String> trans = new ArrayList<String>();
             //建立一個JSONArray 並把POST回傳資料json(JSOM檔)帶入
-            JSONArray array = new JSONArray(json);
+            JSONArray array = new JSONArray(json2);
             //ArrayList 新增 請選擇這一單項
             trans.add("請選擇");
-            //用迴圈取出JSONArray內的JSONObject標題為"cCustomerName"的值
+            //用迴圈取出JSONArray內的JSONObject標題為"CustomerName"的值
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
                 //String id = obj.getString("cCustomerID");
-                String listname = obj.getString("cCustomerName");
+                String listname = obj.getString("CustomerName");
+                String listTotal = obj.getString("Total");
+                String newTotal = listname+"("+listTotal+")";
                 Log.e("okHTTP5", listname);
                 //ArrayList 新增JSONObject標題為"cCustomerName"的值
-                trans.add(listname);
+                trans.add(newTotal);
 
             }
 
@@ -166,7 +186,7 @@ public class OutActivity extends AppCompatActivity {
                     Log.e("index", String.valueOf(index));
                     Log.e("name",name);
                     //點擊後所要執行的方法 並把所回傳的json和索引值帶入
-                    postjson2(json, index);
+                    postjson2(String.valueOf(json2), index);
 
                 }
                 @Override
@@ -182,25 +202,29 @@ public class OutActivity extends AppCompatActivity {
     }
 
     //點擊 spinner項目後 所要執行的方法
-    private void postjson2(String json, int index) {
+    private void postjson2(String json2, int index) {
 
         try {
             //把點到的索引值-1(多了請選擇) 就能連結到所點到的json的客戶ID
-            door1 = new JSONArray(json).getJSONObject(index - 1).getString("cCustomerID");
+            door1 = new JSONArray(json2).getJSONObject(index - 1).getString("CustomerID");
             Log.e("ARRAY", door1);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         //把連接到的客戶IP帶入JSON並POST上去
-        RequestBody body = new FormBody.Builder()
-                .add("postdata", "{ cCustomerID:\"" + door1 + "\", cUserID: \"S000000001\" }")
-                //.add("postdata", "{\"cAccount\":\"" + userName + "\",\"cPassword\":\"" + passWord + "\"}")
-                .build();
+        OkHttpClient client = new OkHttpClient();
+        final MediaType JSON
+                = MediaType.parse("application/json; charset=utf-8");
+        String json = "{\"Token\":\"\" ,\"Action\":\"pickups\",\"UserID\":\"S000000001\",\"CustomerID\":\""+door1+"\"}";
+        Log.e("JSON", json);
+        RequestBody body = RequestBody.create(JSON, json);
         Request request = new Request.Builder()
-                .url(url2)
+                .url(url)
                 .post(body)
                 .build();
+        Log.e("UP2", body.toString());
+        //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
         Call call = client.newCall(request);
         call.enqueue(new Callback() {
             @Override
@@ -213,26 +237,37 @@ public class OutActivity extends AppCompatActivity {
 
                 //取得POST上去後所得到的JSON檔
                 //[{"cShippersID":"S20160000011"}] 依所點的上傳 所以回傳不同
-                String json2 = response.body().string();
+                String json3 = response.body().string();
                 Log.e("OkHttp6", response.toString());
-                Log.e("OkHttp7", json2);
-                parseJson2(json2);
+                Log.e("OkHttp7", json3);
+                //取出CustomerPickups
+                try {
+                    JSONObject j = new JSONObject(json3);
+                    json4 = j.getString("CustomerPickups");
+                    Log.e("JSON4",json4);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                parseJson2(json4);
             }
         });
     }
 
     //POST成功後把回傳的值(陣列)取出來 用listView顯示 把JSON2帶進來
-    private void parseJson2(String json2) {
+    private void parseJson2(String json4) {
         try {
             final ArrayList<String> trans = new ArrayList<String>();
-            final JSONArray array = new JSONArray(json2);
+            final JSONArray array = new JSONArray(json4);
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);
-                //取得標題為"cShippersID"的內容
-                listname = obj.getString("cShippersID");
-                Log.e("okHTTP8", listname);
+                //取得標題為"PickupNo"的內容
+                listname = obj.getString("PickupNo");
+                listTotal= obj.getString("Total");
+                String newName=listname+"("+listTotal+")";
+                Log.e("okHTTP8", newName);
                 //ArrayList新增listname項目
-                trans.add(listname);
+                trans.add(newName);
             }
             final ListView listView = (ListView) findViewById(R.id.listView);
             // 設定 ListView 選擇的方式 :
@@ -271,12 +306,23 @@ public class OutActivity extends AppCompatActivity {
                     Adapter adapter = list.getAdapter();
                     SparseBooleanArray array = list.getCheckedItemPositions();
                     checked = new ArrayList<>(list.getCheckedItemCount());
+                    newCheck = new ArrayList<String>();
                     for (int i = 0; i < array.size(); i++) {
                         int key = array.keyAt(i);
                         if (array.get(key)) {
                             checked.add((String) adapter.getItem(key));
                             Log.e("CHECK", String.valueOf(checked));
+                            for(int i2=0;i2<checked.size();i2++)
+                            {
+                                String newPickupNo=checked.get(i2);
+                                Log.e("newPickupNo",newPickupNo);
+                                int i3 = newPickupNo.indexOf("(");
+                                Log.e("indexOf", String.valueOf(i3));
+                                String newPickupNo2 = (String) newPickupNo.subSequence(0,i3);
+                                Log.e("newPickupNo2",newPickupNo2);
+                                newCheck.add(newPickupNo2);
 
+                            }
                         }
 
                     }
@@ -289,21 +335,24 @@ public class OutActivity extends AppCompatActivity {
         Log.e("CHECKED", String.valueOf(checked));
     }
     public void enter (View v){
-        //如果沒有點擊
-        if(checked==null){
 
-            Toast.makeText(OutActivity.this,"請選擇出貨單", Toast.LENGTH_SHORT).show();
-        }
-        else{
+        if(checked!=null){
+
             //點擊後到下一頁和所要傳的資料
             Intent intent = new Intent(OutActivity.this, OrderActivity.class);
             Bundle bag = new Bundle();
-            bag.putString("checked", String.valueOf(checked));
+            bag.putString("checked", String.valueOf(newCheck));
             bag.putString("order",name);
             bag.putString("cUserName",cUserName);
             intent.putExtras(bag);
             startActivity(intent);
             OutActivity.this.finish();
+
+        }
+        //沒有點擊
+        else{
+            Toast.makeText(OutActivity.this,"請選擇出貨單", Toast.LENGTH_SHORT).show();
+
         }
 
 

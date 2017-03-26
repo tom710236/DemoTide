@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -37,11 +37,12 @@ import okhttp3.Response;
 
 public class OrderActivity extends AppCompatActivity {
     String check, door1, cUserName;
-    String url = "http://demo.shinda.com.tw/ModernWebApi/WebApi.aspx";
+    String url = "http://demo.shinda.com.tw/ModernWebApi/Pickup.aspx";
     String check2 = null;
     String check3 = null;
     String json;
     int addNum=0;
+
 
     LinearLayout linear;
     ArrayAdapter<ProductInfo> list;
@@ -82,7 +83,11 @@ public class OrderActivity extends AppCompatActivity {
         check = bag.getString("checked", null);
         cUserName = bag.getString("cUserName", null);
         door1 = bag.getString("order", null);
+        Log.e("cUserName",cUserName);
+        TextView textView = (TextView)findViewById(R.id.textView4);
+        textView.setText(cUserName + "您好");
         Log.e("check", check);
+
         //把check的JSON去中框號和中間空白處(變成check3) 才能POST
         //先取得字串的長度
         int i = check.length();
@@ -171,14 +176,20 @@ public class OrderActivity extends AppCompatActivity {
     //執行執行緒的方法
     private void postjson() {
         //post
-        RequestBody body = new FormBody.Builder()
-                .add("postdata", "{ ApiName: \"GetShippersD\", ApiID: \"" + check3 + "\"}")
-                .build();
+        OkHttpClient client = new OkHttpClient();
+        final MediaType JSON
+                = MediaType.parse("application/json; charset=utf-8");
+        String json = "{\"Token\":\"\" ,\"Action\":\"dopickups\",\"UserID\":\"S000000001\",\"PickupNumbers\":\""+check2+"\"}";
+        Log.e("JSON", json);
+        RequestBody body = RequestBody.create(JSON, json);
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
                 .build();
+        Log.e("UP2", body.toString());
+        //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
         Call call = client.newCall(request);
+        //呼叫call類別的enqueue進行排程連線(連線至主機)
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -188,10 +199,19 @@ public class OrderActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 //POST後 回傳的JSON檔
-                json = response.body().string();
+                String json = response.body().string();
                 Log.e("json",json);
                 Log.e("OkHttp10", response.toString());
                 Log.e("OkHttp11", json);
+                try {
+                    JSONObject j = new JSONObject(json);
+                    json = j.getString("PickUpProducts");
+                    Log.e("JSON4", json);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 parseJson2(json);
 
             }
@@ -206,7 +226,7 @@ public class OrderActivity extends AppCompatActivity {
             {
                 JSONObject obj = array.getJSONObject(i);
                 //用自訂類別 把JSONArray的值取出來
-                trans.add(new ProductInfo(obj.optString("cProductName"), obj.optString("cProductID"),obj.optInt("cShippersCount"),obj.optInt("cShippersCountEd")));
+                trans.add(new ProductInfo(obj.optString("ProductNo"), obj.optString("Qty"),obj.optInt("NowQty"),obj.optInt("cShippersCountEd")));
                 Log.e("trans", String.valueOf(trans));
             }
             //顯示listView(JSONArray的值)

@@ -48,13 +48,13 @@
                 android:layout_weight="4"></LinearLayout>
 
             <TextView
+                android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="56dp"
-                android:id="@+id/textView3"
                 android:layout_weight="1"
-                android:textSize="14sp"
+                android:gravity="center"
                 android:textColor="#000000"
-                android:gravity="center" />
+                android:textSize="14sp" />
 
         </LinearLayout>
 

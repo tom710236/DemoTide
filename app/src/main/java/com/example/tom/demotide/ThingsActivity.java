@@ -22,7 +22,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class ThingsActivity extends AppCompatActivity {
     String trans,LackNo2,LackNo3;
@@ -33,8 +41,8 @@ public class ThingsActivity extends AppCompatActivity {
     ArrayList<ProductInfo> transAdd;
     ArrayList<ProductInfo> checked;
     ArrayAdapter<ProductInfo> list;
-
-
+    String newjson;
+    String url="http://demo.shinda.com.tw/ModernWebApi/LackAPI.aspx";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,8 +191,29 @@ public class ThingsActivity extends AppCompatActivity {
             if(product != null){
                 product.mProductCount= product.mProductCount+Integer.parseInt(UserNum);
                 Log.e("product.mProductCount", String.valueOf(product.mProductCount));
-                list.notifyDataSetChanged();
 
+                newjson = "{\n" +
+                        "  \"Token\": \"\",\n" +
+                        "  \"Action\": \"update\",\n" +
+                        "  \"UserID\": \"test\",\n" +
+                        "  \"LackInfo\": {\n" +
+                        "    \"LackNo\": \"L0001\",\n" +
+                        "    \"LackName\": \"儲位1\",\n" +
+                        "    \"LackProduct\": [\n" +
+                        "      {\n" +
+                        "        \"ProductID\": \"P000012\",\n" +
+                        "        \"Count\": 5\n" +
+                        "      },\n" +
+                        "      {\n" +
+                        "        \"ProductID\": \"P000055\",\n" +
+                        "        \"Count\": 3\n" +
+                        "      }\n" +
+                        "    ]\n" +
+                        "  }\n" +
+                        "}\n";
+                PassList passList = new PassList();
+                passList.start();
+                list.notifyDataSetChanged();
             }else {
                 Toast.makeText(ThingsActivity.this,"請輸入正確商品條碼或數量", Toast.LENGTH_SHORT).show();
             }
@@ -192,10 +221,42 @@ public class ThingsActivity extends AppCompatActivity {
         else {
             Toast.makeText(ThingsActivity.this,"請輸入正確商品條碼或數量", Toast.LENGTH_SHORT).show();
         }
+        Log.e("ADDADD", String.valueOf(transAdd));
 
-        Log.e("TRAINADDD", String.valueOf(transAdd));
+    }
+    class PassList extends Thread {
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = newjson;
+            Log.e("JSON",json);
+            RequestBody body = RequestBody.create(JSON,json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            Log.e("UP", body.toString());
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            okhttp3.Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
 
-//
+                }
+
+                @Override
+                public void onResponse(okhttp3.Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("OkHttp3", response.toString());
+                    Log.e("OkHttp4", json);
+                }
+
+            });
+
+        }
     }
 
 }
