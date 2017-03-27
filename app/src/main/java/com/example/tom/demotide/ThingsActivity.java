@@ -39,9 +39,11 @@ public class ThingsActivity extends AppCompatActivity {
     MyDBhelper helper;
     SQLiteDatabase db;
     String cProductName,cUserName;
-    int Count;
+    int Count,key;
     ArrayList<ProductInfo> transAdd;
+    ArrayList<ProductInfo2> transAdd2;
     ArrayList<ProductInfo> checked;
+    ArrayList<ProductInfo2> checked2;
     ArrayAdapter<ProductInfo> list;
     String newjson;
     String url="http://demo.shinda.com.tw/ModernWebApi/LackAPI.aspx";
@@ -103,6 +105,7 @@ public class ThingsActivity extends AppCompatActivity {
         try {
             //建立一個ArrayList
             transAdd = new ArrayList<>();
+            transAdd2 = new ArrayList<>();
             //建立一個JSONArray 並把POST回傳資料json(JSOM檔)帶入
             JSONArray array = new JSONArray(trans);
             for (int i = 0; i < array.length(); i++) {
@@ -126,6 +129,9 @@ public class ThingsActivity extends AppCompatActivity {
                 }
                 transAdd.add(new ProductInfo(cProductName , ProductID ,Count));
                 Log.e("TRANSADD", String.valueOf(transAdd));
+                transAdd2.add(new ProductInfo2(ProductID,Count));
+
+
             }
 
 
@@ -166,17 +172,22 @@ public class ThingsActivity extends AppCompatActivity {
                 Adapter adapter = list.getAdapter();
                 SparseBooleanArray array = list.getCheckedItemPositions();
                 checked = new ArrayList<ProductInfo>(list.getCheckedItemCount());
+                //checked2 = new ArrayList<ProductInfo2>(list.getCheckedItemCount());
                 for (int i = 0; i < array.size(); i++) {
-                    int key = array.keyAt(i);
+                    key= array.keyAt(i);
+                    Log.e("KET", String.valueOf(key));
                     if (array.get(key)) {
+                        Log.e("KET2", String.valueOf(key));
                         checked.add((ProductInfo) adapter.getItem(key));
+                        //checked2.add((ProductInfo2) adapter.getItem(key));
                         Log.e("CHECK", String.valueOf(checked));
+                        //Log.e("CHECK2", String.valueOf(checked2));
                     }
-
                 }
             }
         });
     }
+
 
     public class ProductInfo {
         private String mProductName;
@@ -195,6 +206,23 @@ public class ThingsActivity extends AppCompatActivity {
         @Override
         public String toString() {
             return this.mProductName + "("+this.mProductCount+")" +"\n"+ "(" + this.mProductID + ")";
+        }
+    }
+    public class ProductInfo2 {
+        private String mProductID;
+        private int mProductCount=0;
+
+        //建構子
+        ProductInfo2(final String productID, int productCount) {
+            this.mProductID = productID;
+            this.mProductCount = productCount;
+
+        }
+
+        //方法
+        @Override
+        public String toString() {
+            return "{\"ProductID\": \""+this.mProductID+"\",\"Count\": "+this.mProductCount+"}";
         }
     }
 
@@ -220,12 +248,15 @@ public class ThingsActivity extends AppCompatActivity {
         //final String UserNum2 =num.getText().toString();
         final String UserNum = num.getText().toString();
         final ProductInfo product = getProduct(UserEnterKey);
+        final ProductInfo2 product2 = getProduct2(UserEnterKey);
         if(UserNum.length()!=0){
             if(product != null){
                 product.mProductCount= product.mProductCount+Integer.parseInt(UserNum);
+                product2.mProductCount = product.mProductCount;
                 Log.e("product.mProductCount", String.valueOf(product.mProductCount));
                 list.notifyDataSetChanged();
-                Log.e("CHECK222", String.valueOf(checked));
+                Log.e("CHECK222", String.valueOf(transAdd));
+                Log.e("transAdd2", String.valueOf(transAdd2));
             }else {
                 Toast.makeText(ThingsActivity.this,"請輸入正確商品條碼或數量", Toast.LENGTH_SHORT).show();
             }
@@ -271,7 +302,8 @@ public class ThingsActivity extends AppCompatActivity {
         }
     }
     public void onClick (View v){
-        Log.e("CHECK333", String.valueOf(transAdd));
+        Log.e("TRANS1111", String.valueOf(transAdd));
+        Log.e("transAdd22", String.valueOf(transAdd2));
 
         newjson = "{\n" +
                 "  \"Token\": \"\",\n" +
@@ -280,20 +312,30 @@ public class ThingsActivity extends AppCompatActivity {
                 "  \"LackInfo\": {\n" +
                 "    \"LackNo\": \"L0001\",\n" +
                 "    \"LackName\": \"儲位1\",\n" +
-                "    \"LackProduct\": [\n" +
-                "      {\n" +
-                "        \"ProductID\": \"P000012\",\n" +
-                "        \"Count\": 5\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"ProductID\": \"P000055\",\n" +
-                "        \"Count\": 3\n" +
-                "      }\n" +
-                "    ]\n" +
+                "    \"LackProduct\": "+transAdd2+"\n" +
                 "  }\n" +
-                "}\n";
+                "}";
         PassList passList = new PassList();
         passList.start();
         list.notifyDataSetChanged();
+    }
+    public void onDel(View v){
+        checked.remove(key);
+        Log.e("CHECKEDYY", String.valueOf(checked));
+        list.notifyDataSetChanged();
+    }
+    //型別(String 之纇的),方法名稱
+    @Nullable
+    private ProductInfo2 getProduct2(final String key)
+    {
+        if (TextUtils.isEmpty(key))
+            return null;
+        for (int index = 0; index < transAdd2.size(); index++)
+        {
+            ProductInfo2 product2 = transAdd2.get(index);
+            if (product2.mProductID.equals(key))
+                return product2;
+        }
+        return null;
     }
 }

@@ -54,21 +54,20 @@ public class OrderActivity extends AppCompatActivity {
     ListView listView;
     //把JSON 類別化
     public class ProductInfo {
-        private String mProductName;
         private String mProductID;
-        private int mProductCount=0;
-        private int mStocks = 0;
+        private int mQty=0;
+        private int mNowQty = 0;
         //建構子
-        ProductInfo(final String productName, final String productID, int productCount, int cShippersCountEd) {
-            this.mProductName = productName;
-            this.mProductID = productID;
-            this.mProductCount = productCount;
+        ProductInfo(final String ProductID, final int Qty, int NowQty) {
+            this.mProductID = ProductID;
+            this.mQty = Qty;
+            this.mNowQty = NowQty;
 
         }
         //方法
         @Override
         public String toString() {
-            return this.mProductName + "(" + this.mProductID + ") " + this.mProductCount + " (" + this.mStocks + ")";
+            return this.mProductID + "(" + this.mQty + ") " + this.mNowQty;
         }
     }
 
@@ -226,7 +225,7 @@ public class OrderActivity extends AppCompatActivity {
             {
                 JSONObject obj = array.getJSONObject(i);
                 //用自訂類別 把JSONArray的值取出來
-                trans.add(new ProductInfo(obj.optString("ProductNo"), obj.optString("Qty"),obj.optInt("NowQty"),obj.optInt("cShippersCountEd")));
+                trans.add(new ProductInfo(obj.optString("ProductNo"), obj.optInt("Qty"),obj.optInt("NowQty")));
                 Log.e("trans", String.valueOf(trans));
             }
             //顯示listView(JSONArray的值)
@@ -252,46 +251,46 @@ public class OrderActivity extends AppCompatActivity {
         //類別
         final ProductInfo product = getProduct(UserEnterKey);
 
-        if (product != null && product.mStocks>=0)
+        if (product != null && product.mNowQty>=0)
         {
             if(addNum==1){
-                if(product.mStocks>product.mProductCount||product.mStocks+addNum>product.mProductCount){
-                    product.mStocks=product.mProductCount;
+                if(product.mNowQty>product.mQty||product.mNowQty+addNum>product.mQty){
+                    product.mNowQty=product.mQty;
                     list.notifyDataSetChanged();
                     Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
                 }else{
-                    product.mStocks=product.mStocks+addNum;
+                    product.mNowQty=product.mNowQty+addNum;
                     list.notifyDataSetChanged();
                 }
 
             }
             else if(addNum==5){
-                if(product.mStocks>product.mProductCount||product.mStocks+addNum>product.mProductCount){
-                    product.mStocks=product.mProductCount;
+                if(product.mNowQty>product.mQty||product.mNowQty+addNum>product.mQty){
+                    product.mNowQty=product.mQty;
                     list.notifyDataSetChanged();
                     Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
                 }else{
-                    product.mStocks=product.mStocks+addNum;
+                    product.mNowQty=product.mNowQty+addNum;
                     list.notifyDataSetChanged();
                 }
             }
             else if(addNum==10){
-                if(product.mStocks>product.mProductCount||product.mStocks+addNum>product.mProductCount){
-                    product.mStocks=product.mProductCount;
+                if(product.mNowQty>product.mQty||product.mNowQty+addNum>product.mQty){
+                    product.mNowQty=product.mQty;
                     list.notifyDataSetChanged();
                     Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
                 }else{
-                    product.mStocks=product.mStocks+addNum;
+                    product.mNowQty=product.mNowQty+addNum;
                     list.notifyDataSetChanged();
                 }
             }
             else if(addNum==99999){
-                if(product.mStocks>product.mProductCount||product.mStocks+addNum>product.mProductCount){
-                    product.mStocks=product.mProductCount;
+                if(product.mNowQty>product.mQty||product.mNowQty+addNum>product.mQty){
+                    product.mNowQty=product.mQty;
                     list.notifyDataSetChanged();
                     Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
                 }else{
-                    product.mStocks=product.mStocks+addNum;
+                    product.mNowQty=product.mNowQty+addNum;
                     list.notifyDataSetChanged();
                 }
             }
@@ -308,14 +307,14 @@ public class OrderActivity extends AppCompatActivity {
                                 EditText editText = (EditText) item.findViewById(R.id.editText2);
                                 if(editText.length()!=0){
                                     int addnum = Integer.parseInt(editText.getText().toString());
-                                    if(addnum >product.mProductCount||product.mStocks+addnum>product.mProductCount||product.mStocks>product.mProductCount){
+                                    if(addnum >product.mQty||product.mNowQty+addnum>product.mQty||product.mNowQty>product.mQty){
                                         Log.e("addnum", String.valueOf(addnum));
-                                        product.mStocks=product.mProductCount;
+                                        product.mNowQty=product.mQty;
                                         list.notifyDataSetChanged();
                                         Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
 
                                     }else{
-                                        product.mStocks=product.mStocks+addnum;
+                                        product.mNowQty=product.mNowQty+addnum;
                                         list.notifyDataSetChanged();
                                     }
                                 }else{
