@@ -46,7 +46,7 @@ public class AddThingsActivity extends AppCompatActivity {
     SQLiteDatabase db4;
     int index;
     String LackNameTo,LackNo2,LackNo3;
-    List<String> checked;
+    List<String> checked,checked2;
     ArrayList<String> trans,json2;
     //儲位API
     String url="http://demo.shinda.com.tw/ModernWebApi/LackAPI.aspx";
@@ -294,11 +294,19 @@ public class AddThingsActivity extends AppCompatActivity {
                     Adapter adapter = list.getAdapter();
                     SparseBooleanArray array = list.getCheckedItemPositions();
                     checked = new ArrayList<>(list.getCheckedItemCount());
+                    checked2 = new ArrayList<>(list.getCheckedItemCount());
                     for (int i = 0; i < array.size(); i++) {
                         int key = array.keyAt(i);
                         if (array.get(key)) {
                             checked.add((String) adapter.getItem(key));
                             Log.e("CHECK", String.valueOf(checked));
+                            int i2 =((String) adapter.getItem(key)).indexOf("-");
+                            Log.e("i2", String.valueOf(i2));
+                            String getItem = ((String) adapter.getItem(key)).substring(0,i2);
+                            Log.e("getItem", getItem);
+                            checked2.add(getItem);
+                            Log.e("checked2", String.valueOf(checked2));
+
 
                         }
 
@@ -366,8 +374,9 @@ public class AddThingsActivity extends AppCompatActivity {
                     for (int i = 0; i < array.size(); i++) {
                         int key = array.keyAt(i);
                         if (array.get(key)) {
-                            checked.add((String) adapter.getItem(key));
+                            checked.add((String)adapter.getItem(key));
                             Log.e("CHECK", String.valueOf(checked));
+
 
                         }
 
@@ -485,6 +494,7 @@ public class AddThingsActivity extends AppCompatActivity {
             Bundle bag = new Bundle();
             bag.putString("LackNo2",LackNo2);
             bag.putString("LackNo3",LackNo3);
+            bag.putString("cUserName",cUserName);
             bag.putString("trans", String.valueOf(trans));
             intent.putExtras(bag);
             startActivity(intent);
@@ -492,5 +502,47 @@ public class AddThingsActivity extends AppCompatActivity {
         }
 
     }
+    public void onDel (View v){
+        PassDel passDel = new PassDel();
+        passDel.start();
+    }
 
+    class PassDel extends Thread {
+
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String checked3 = String.valueOf(checked2).replace("[","");
+            String checked4 = checked3.replace("]","");
+            String checked5 = checked4.replace(", ",",");
+            String json = "{\"Token\":\"\" ,\"Action\":\"delete\",\"LackNo\":\""+checked5+"\"}";
+            Log.e("JSON", json);
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            Log.e("UP2", body.toString());
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("OkHttp5", response.toString());
+                    Log.e("OkHttp6", json);
+                }
+            });
+
+        }
+
+    }
 }

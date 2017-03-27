@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
@@ -37,7 +38,7 @@ public class ThingsActivity extends AppCompatActivity {
     String trans,LackNo2,LackNo3;
     MyDBhelper helper;
     SQLiteDatabase db;
-    String cProductName;
+    String cProductName,cUserName;
     int Count;
     ArrayList<ProductInfo> transAdd;
     ArrayList<ProductInfo> checked;
@@ -66,6 +67,35 @@ public class ThingsActivity extends AppCompatActivity {
         TextView textview2 = (TextView)findViewById(R.id.textView7);
         textview.setText(LackNo2);
         textview2.setText(LackNo3);
+
+
+        Intent intent3 = getIntent();
+        //取得Bundle物件後 再一一取得資料
+        Bundle bag3 = intent3.getExtras();
+        cUserName = bag3.getString("cUserName", null);
+
+        TextView textView = (TextView) findViewById(R.id.textView3);
+        textView.setText(cUserName + "您好");
+
+        //設定Toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+        //回到上一頁圖示
+        toolbar.setNavigationIcon(R.drawable.ic_chevron_left_black_24dp);
+        //回到上一頁按鍵設定
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //因為cUserName從上一頁傳過來了 所以要回到上一頁 要把cUserName再傳回去
+                Intent intent = new Intent(ThingsActivity.this, AddThingsActivity.class);
+                Bundle bag = new Bundle();
+                bag.putString("cUserName", cUserName);
+                intent.putExtras(bag);
+                startActivity(intent);
+                ThingsActivity.this.finish();
+            }
+        });
     }
 
     private void parseJson() {
