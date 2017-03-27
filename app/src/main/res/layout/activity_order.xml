@@ -73,18 +73,20 @@
         android:layout_marginRight="30dp">
 
         <Button
-            android:text="結案"
+            android:id="@+id/button5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/button5"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:onClick="onEnd"
+            android:text="結案" />
 
         <Button
-            android:text="換人檢"
+            android:id="@+id/button4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/button4"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:onClick="onChange"
+            android:text="換人檢" />
 
         <LinearLayout
             android:orientation="vertical"

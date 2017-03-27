@@ -3,6 +3,7 @@ package com.example.tom.demotide;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -47,6 +48,7 @@ public class OrderActivity extends AppCompatActivity {
     LinearLayout linear;
     ArrayAdapter<ProductInfo> list;
     ArrayList<ProductInfo> trans;
+    ArrayList<ProductInfo2> trans2;
 
     OkHttpClient client = new OkHttpClient();
 
@@ -68,6 +70,22 @@ public class OrderActivity extends AppCompatActivity {
         @Override
         public String toString() {
             return this.mProductID + "(" + this.mQty + ") " + this.mNowQty;
+        }
+    }
+    public class ProductInfo2 {
+        private String mProductID;
+        private int mQty=0;
+        private int mNowQty = 0;
+        //建構子
+        ProductInfo2(final String ProductID,int NowQty) {
+            this.mProductID = ProductID;
+            this.mNowQty = NowQty;
+
+        }
+        //方法
+        @Override
+        public String toString() {
+            return "{\"ProductNo\":\""+this.mProductID+"\",\"NowQty\":"+this.mNowQty+"}";
         }
     }
 
@@ -130,6 +148,7 @@ public class OrderActivity extends AppCompatActivity {
         }).start();
         editText = (EditText) findViewById(R.id.editText);
         trans = new ArrayList<ProductInfo>();
+        trans2 = new ArrayList<>();
         listView = (ListView) findViewById(R.id.list);
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
         list = new ArrayAdapter<>(OrderActivity.this, android.R.layout.simple_list_item_activated_1, trans);
@@ -226,6 +245,7 @@ public class OrderActivity extends AppCompatActivity {
                 JSONObject obj = array.getJSONObject(i);
                 //用自訂類別 把JSONArray的值取出來
                 trans.add(new ProductInfo(obj.optString("ProductNo"), obj.optInt("Qty"),obj.optInt("NowQty")));
+                trans2.add(new ProductInfo2(obj.optString("ProductNo"),obj.optInt("NowQty")));
                 Log.e("trans", String.valueOf(trans));
             }
             //顯示listView(JSONArray的值)
@@ -250,16 +270,18 @@ public class OrderActivity extends AppCompatActivity {
         final String UserEnterKey = editText.getText().toString();
         //類別
         final ProductInfo product = getProduct(UserEnterKey);
-
+        final ProductInfo2 product2 = getProduct2(UserEnterKey);
         if (product != null && product.mNowQty>=0)
         {
             if(addNum==1){
                 if(product.mNowQty>product.mQty||product.mNowQty+addNum>product.mQty){
                     product.mNowQty=product.mQty;
+                    product2.mNowQty=product.mNowQty;
                     list.notifyDataSetChanged();
                     Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
                 }else{
                     product.mNowQty=product.mNowQty+addNum;
+                    product2.mNowQty=product.mNowQty;
                     list.notifyDataSetChanged();
                 }
 
@@ -267,30 +289,36 @@ public class OrderActivity extends AppCompatActivity {
             else if(addNum==5){
                 if(product.mNowQty>product.mQty||product.mNowQty+addNum>product.mQty){
                     product.mNowQty=product.mQty;
+                    product2.mNowQty=product.mNowQty;
                     list.notifyDataSetChanged();
                     Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
                 }else{
                     product.mNowQty=product.mNowQty+addNum;
+                    product2.mNowQty=product.mNowQty;
                     list.notifyDataSetChanged();
                 }
             }
             else if(addNum==10){
                 if(product.mNowQty>product.mQty||product.mNowQty+addNum>product.mQty){
                     product.mNowQty=product.mQty;
+                    product2.mNowQty=product.mNowQty;
                     list.notifyDataSetChanged();
                     Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
                 }else{
                     product.mNowQty=product.mNowQty+addNum;
+                    product2.mNowQty=product.mNowQty;
                     list.notifyDataSetChanged();
                 }
             }
             else if(addNum==99999){
                 if(product.mNowQty>product.mQty||product.mNowQty+addNum>product.mQty){
                     product.mNowQty=product.mQty;
+                    product2.mNowQty=product.mNowQty;
                     list.notifyDataSetChanged();
                     Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
                 }else{
                     product.mNowQty=product.mNowQty+addNum;
+                    product2.mNowQty=product.mNowQty;
                     list.notifyDataSetChanged();
                 }
             }
@@ -310,11 +338,13 @@ public class OrderActivity extends AppCompatActivity {
                                     if(addnum >product.mQty||product.mNowQty+addnum>product.mQty||product.mNowQty>product.mQty){
                                         Log.e("addnum", String.valueOf(addnum));
                                         product.mNowQty=product.mQty;
+                                        product2.mNowQty=product.mNowQty;
                                         list.notifyDataSetChanged();
                                         Toast.makeText(OrderActivity.this,"數量已滿", Toast.LENGTH_SHORT).show();
 
                                     }else{
                                         product.mNowQty=product.mNowQty+addnum;
+                                        product2.mNowQty=product.mNowQty;
                                         list.notifyDataSetChanged();
                                     }
                                 }else{
@@ -332,6 +362,7 @@ public class OrderActivity extends AppCompatActivity {
         }
     }
 
+    @Nullable
     private ProductInfo getProduct(final String key)
     {
         if (TextUtils.isEmpty(key))
@@ -343,6 +374,102 @@ public class OrderActivity extends AppCompatActivity {
                 return product;
         }
         return null;
+    }
+
+    @Nullable
+    private ProductInfo2 getProduct2(final String key)
+    {
+        if (TextUtils.isEmpty(key))
+            return null;
+        for (int index = 0; index < trans2.size(); index++)
+        {
+            ProductInfo2 product2 = trans2.get(index);
+            if (product2.mProductID.equals(key))
+                return product2;
+        }
+        return null;
+    }
+
+
+    public void onEnd(View v){
+        Log.e("TRANS222", String.valueOf(trans2));
+        PassEnd passEnd = new PassEnd();
+        passEnd.start();
+
+    }
+    class PassEnd extends Thread {
+
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = "{\"Token\":\"\" ,\"Action\":\"finish\",\"PickupNumbers\" :\""+check3+"\"}";
+            Log.e("JSON", json);
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("OkHttp5", response.toString());
+                    Log.e("OkHttp6", json);
+                }
+            });
+
+        }
+
+    }
+    public void onChange(View v){
+        Log.e("TRANS222", String.valueOf(trans2));
+        PassChange passChange = new PassChange();
+        passChange.start();
+
+    }
+    class PassChange extends Thread {
+
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = "{\"Token\":\"\" ,\"Action\":\"save\",\"PickupNumbers\" :\""+check3+"\",\"PickupProducts\":"+trans2+"}";
+            Log.e("JSON", json);
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("OkHttp5", response.toString());
+                    Log.e("OkHttp6", json);
+                }
+            });
+
+        }
+
     }
 
     }
