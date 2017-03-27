@@ -35,7 +35,7 @@ import okhttp3.Response;
 public class OutActivity extends AppCompatActivity {
     // 宣告
     String url = "http://demo.shinda.com.tw/ModernWebApi/Pickup.aspx";
-    String url2 = "http://demo.shinda.com.tw/ModernWebApi/GetShippersByCustomerID.aspx";
+    //String url2 = "http://demo.shinda.com.tw/ModernWebApi/GetShippersByCustomerID.aspx";
     OkHttpClient client = new OkHttpClient();
     String cUserName;
     List<String> checked;
@@ -117,6 +117,7 @@ public class OutActivity extends AppCompatActivity {
                 //取得回傳資料json JSON檔陣列
                 //[{"cCustomerID":"C000000001","cCustomerName":"大島屋企業"},{"cCustomerID":"C000000002","cCustomerName":"新達科技"},{"cCustomerID":"C000000003","cCustomerName":"磯法資訊"}]
                 String json = response.body().string();
+                Log.e("JSON1111",json);
                 json2 = new ArrayList<String>();
                 try {
                     JSONObject j = new JSONObject(json);

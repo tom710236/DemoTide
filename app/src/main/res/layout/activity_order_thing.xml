@@ -196,19 +196,19 @@
             android:layout_marginLeft="30dp">
 
             <TextView
-                android:text="客戶"
+                android:id="@+id/textView12"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView12"
                 android:layout_weight="1"
+                android:text="採購單"
                 android:textSize="20sp" />
 
             <TextView
-                android:text="TextView"
+                android:id="@+id/textView11"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView11"
                 android:layout_weight="1"
+                android:text="TextView"
                 android:textSize="20sp" />
 
         </LinearLayout>
@@ -238,12 +238,12 @@
                 android:textSize="20sp" />
 
             <EditText
+                android:id="@+id/editText99"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:ems="10"
-                android:id="@+id/editText"
                 android:layout_weight="1"
+                android:ems="10"
+                android:inputType="textPersonName"
                 android:singleLine="true"
                 android:textSize="20sp" />
 

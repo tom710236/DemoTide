@@ -50,8 +50,6 @@ public class OrderActivity extends AppCompatActivity {
     ArrayList<ProductInfo> trans;
     ArrayList<ProductInfo2> trans2;
 
-    OkHttpClient client = new OkHttpClient();
-
     EditText editText;
     ListView listView;
     //把JSON 類別化
@@ -74,7 +72,6 @@ public class OrderActivity extends AppCompatActivity {
     }
     public class ProductInfo2 {
         private String mProductID;
-        private int mQty=0;
         private int mNowQty = 0;
         //建構子
         ProductInfo2(final String ProductID,int NowQty) {
