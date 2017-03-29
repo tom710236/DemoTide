@@ -25,13 +25,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class OrderThingActivity extends AppCompatActivity {
     String json5;
     String cUserName,name;
     int addNum = 0;
     ArrayList<String> json2;
+    String url = "http://demo.shinda.com.tw/ModernWebApi/Purchase.aspx";
 
     LinearLayout linear;
     ArrayAdapter<ProductInfo> list;
@@ -40,6 +50,8 @@ public class OrderThingActivity extends AppCompatActivity {
 
     EditText editText;
     ListView listView;
+    String jsonEnd;
+    Object jsonEnd2;
 
     public class ProductInfo {
         private String mProductID;
@@ -332,6 +344,105 @@ public class OrderThingActivity extends AppCompatActivity {
                 return product2;
         }
         return null;
+    }
+    public void onChange(View v){
+        Log.e("TRANS222", String.valueOf(trans2));
+        PassChange passChange = new PassChange();
+        passChange.start();
+
+    }
+    class PassChange extends Thread {
+
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = "{\"Token\":\"\" ,\"Action\":\"save\",\"PurchaseID\" :\"PU000000001\",\"PurchaseProducts\":"+trans2+"}";
+            Log.e("JSON", json);
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("OkHttp5", response.toString());
+                    Log.e("OkHttp6", json);
+                }
+            });
+
+        }
+
+    }
+
+    public void onEnd(View v){
+        Log.e("TRANS222", String.valueOf(trans2));
+        PassEnd passEnd = new PassEnd();
+        passEnd.start();
+
+
+    }
+    class PassEnd extends Thread {
+
+        @Override
+        public void run() {
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = "{\"Token\":\"\" ,\"Action\":\"finish\",\"PurchaseID\" :\""+name+"\"}";
+            Log.e("JSON", json);
+            RequestBody body = RequestBody.create(JSON, json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    jsonEnd= response.body().string();
+                    jsonEnd2 = null;
+                    try {
+                        JSONObject j = new JSONObject(jsonEnd);
+                        jsonEnd2 = j.getString("msg");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.e("OkHttp5", response.toString());
+                    Log.e("OkHttp6", String.valueOf(jsonEnd2));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(OrderThingActivity.this,String.valueOf(jsonEnd2), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+
+                }
+            });
+
+        }
+
     }
 
 }

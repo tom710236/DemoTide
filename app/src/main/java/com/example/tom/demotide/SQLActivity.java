@@ -126,7 +126,7 @@ public class SQLActivity extends AppCompatActivity {
                             //Activity to Service
                             //serviceIntent.putExtra("timeUp", timeUp);
                             //SQLActivity.this.startService(serviceIntent);
-                            timeUp="09:59";
+                            timeUp="10:27";
                             MyDBhelper3 myDB3 = new MyDBhelper3(SQLActivity.this,"tblTable3",null,1);
                             db3=myDB3.getWritableDatabase();
                             ContentValues addbase = new ContentValues();

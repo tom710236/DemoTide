@@ -114,8 +114,9 @@
         <TextView
             android:id="@+id/textView30"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -140,13 +141,11 @@
             android:ems="10"
             android:inputType="textPersonName" />
 
-        <Button
-            android:id="@+id/button13"
+        <TextView
+            android:id="@+id/textView31"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:onClick="onAdd"
-            android:text="新增" />
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
     </LinearLayout>
 
@@ -176,7 +175,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:onClick="onClick"
+            android:onClick="onAdd"
             android:text="設定" />
 
     </LinearLayout>
@@ -203,6 +202,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:onClick="onDel"
             android:text="刪除" />
 
     </LinearLayout>
@@ -240,9 +240,16 @@
             <ListView
                 android:id="@+id/list"
                 android:layout_width="match_parent"
-                android:layout_height="275dp" />
+                android:layout_height="216dp" />
         </LinearLayout>
     </ScrollView>
+
+    <Button
+        android:id="@+id/button17"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onSave"
+        android:text="儲存" />
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -1,15 +1,11 @@
 package com.example.tom.demotide;
 
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -20,9 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +24,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -42,15 +35,13 @@ import okhttp3.Response;
 
 
 public class AddThingsActivity extends AppCompatActivity {
-    String cUserName,lackNoAdd,lackNameAdd,tblTable4,listname;
-    SQLiteDatabase db4;
-    int index;
-    String LackNameTo,LackNo2,LackNo3;
-    List<String> checked,checked2;
-    ArrayList<String> trans,json2;
-    //儲位API
+    String cUserName,lackNoAdd,lackNameAdd;
+    int key;
     String url="http://demo.shinda.com.tw/ModernWebApi/LackAPI.aspx";
-    //把JSON 類別化
+    ArrayList<ProductInfo> getlist;
+    ArrayList<String> checked;
+    ArrayAdapter<ProductInfo> list;
+    ProductInfo checkNo;
     public class ProductInfo {
         private String mLackNo;
         private String mLackName;
@@ -70,8 +61,6 @@ public class AddThingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_things);
 
-        PassList passList = new PassList();
-        passList.start();
 
         Intent intent = getIntent();
         //取得Bundle物件後 再一一取得資料
@@ -99,7 +88,132 @@ public class AddThingsActivity extends AppCompatActivity {
                 AddThingsActivity.this.finish();
             }
         });
+        PassList passList = new PassList();
+        passList.start();
+
     }
+    //POST 取得list清單
+    class PassList extends Thread {
+        public void run(){
+            OkHttpClient client = new OkHttpClient();
+            final MediaType JSON
+                    = MediaType.parse("application/json; charset=utf-8");
+            String json = "{\"Token\":\"\" ,\"Action\":\"list\"}";
+            Log.e("JSON",json);
+            RequestBody body = RequestBody.create(JSON,json);
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+            Log.e("UP", body.toString());
+            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
+            Call call = client.newCall(request);
+            //呼叫call類別的enqueue進行排程連線(連線至主機)
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String json = response.body().string();
+                    Log.e("取得list清單的網址", response.toString());
+                    Log.e("取得的list清單", json);
+                    //解析 JSON
+                    //建立一個ArrayListList
+                    getlist = new ArrayList<>();
+                    try {
+                        //取出LackList的陣列
+                        JSONObject j = new JSONObject(json);
+                        JSONArray array = j.getJSONArray("LackList");
+                        Log.e("ARRAY", String.valueOf(array));
+
+                        //用FOR取出陣列裡的物件
+                        for (int i = 0; i < array.length(); i++)
+                        {
+                            JSONObject obj = array.getJSONObject(i);
+                            //把取出的物件 放進ARRAYLIS
+                            getlist.add(new ProductInfo(obj.optString("LackNo"),obj.optString("LackName")));
+                            Log.e("getlist", String.valueOf(getlist));
+                            getListView(getlist);
+
+                        }
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+
+        }
+    }
+    //顯示 點擊listView
+    private void getListView(final ArrayList<ProductInfo> getlist) {
+        final ListView listView = (ListView)findViewById(R.id.list);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
+                list = new ArrayAdapter<>(
+                AddThingsActivity.this,
+                android.R.layout.simple_list_item_multiple_choice,
+                getlist);
+        //顯示出listView
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                listView.setVisibility(View.VISIBLE);
+                //設定 ListView 的接收器, 做為選項的來源
+                listView.setAdapter(list);
+                list.notifyDataSetChanged();
+
+            }
+        });
+        //第一種點擊方式 勾選
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                AbsListView list = (AbsListView)adapterView;
+                Adapter adapter = list.getAdapter();
+                SparseBooleanArray array = list.getCheckedItemPositions();
+                checked = new ArrayList<>(list.getCheckedItemCount());
+
+                for (int i = 0; i < array.size(); i++) {
+                    key = array.keyAt(i);
+                    if (array.get(key)) {
+                        checkNo =(ProductInfo)adapter.getItem(key);
+                        checked.add(checkNo.mLackNo);
+                        Log.e("點擊", String.valueOf(checked));
+
+                    }
+                }
+            }
+        });
+
+        //第二種點擊方式 (長按)
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
+                // 利用索引值取得點擊的項目內容。
+                ProductInfo text = getlist.get(index);
+                Log.e("text.mLackNo", text.mLackNo);
+                Log.e("text.mLackName", text.mLackName);
+                Intent intent = new Intent(AddThingsActivity.this, ThingsActivity.class);
+                Bundle bag = new Bundle();
+                bag.putString("mLackNo",text.mLackNo);
+                bag.putString("mLackName",text.mLackName);
+                bag.putString("cUserName",cUserName);
+                intent.putExtras(bag);
+                startActivity(intent);
+                // 回傳 false，長按後該項目被按下的狀態會保持。
+                return false;
+            }
+        });
+
+    }
+    //新增按鈕
     public void onAdd (View v){
         //對話框
         final View item = LayoutInflater.from(AddThingsActivity.this).inflate(R.layout.activity_alertdialog2, null);
@@ -107,58 +221,23 @@ public class AddThingsActivity extends AppCompatActivity {
                 .setTitle("")
                 .setView(item)
                 .setNegativeButton("取消", null)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton("確認", new DialogInterface.OnClickListener() {
+
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //取得輸入的字串 注意item
-                        //String lackNoAdd,lackNameAdd;
-
                         EditText lackNo =(EditText)item.findViewById(R.id.editText6);
                         EditText lackName = (EditText)item.findViewById(R.id.editText4);
                         lackNoAdd = lackNo.getText().toString();
                         lackNameAdd = lackName.getText().toString();
-
-                        Log.e("LACKNOADD", lackNoAdd);
-                        Log.e("LACKNOADD", lackNameAdd);
-                        //把字串放入SQL
-                        //putSQL();
-                        //POST 字串
                         Pass pass = new Pass();
                         pass.start();
 
 
 
+
                     }
-
                 }).show();
-    }
-    //把字串放入SQL
-    private void putSQL(){
 
-        MyDBhelper4 myDB4 = new MyDBhelper4(AddThingsActivity.this,"tblTable4",null,1);
-        db4=myDB4.getWritableDatabase();
-        ContentValues addbase = new ContentValues();
-        addbase.put("LackNo","ackNoAdd");
-        addbase.put("LackName","lackNameAdd");
-        db4.insert("tblTable4",null,addbase);
-    }
-    //顯示SQL
-    private void cursor3(){
-        MyDBhelper4 myDB4 = new MyDBhelper4(AddThingsActivity.this,"tblTable4",null,1);
-        db4=myDB4.getWritableDatabase();
-        Cursor c=db4.rawQuery("SELECT * FROM "+"tblTable4", null);
-        ListView lv = (ListView)findViewById(R.id.list);
-        SimpleCursorAdapter adapter;
-        adapter = new SimpleCursorAdapter(this,
-                //android.R.layout.simple_expandable_list_item_2,
-                android.R.layout.simple_list_item_multiple_choice,
-                c,
-                //new String[] {"info","amount"},
-                new String[] {"LackNo", "LackName"},
-                //new int[] {android.R.id.text1,android.R.id.text2},
-                new int[] {R.id.textView20,R.id.textView21},
-                0);
-        lv.setAdapter(adapter);
     }
     //POST 新增Lack JSON的方法
     class Pass extends Thread {
@@ -188,325 +267,18 @@ public class AddThingsActivity extends AppCompatActivity {
                     String json = response.body().string();
                     Log.e("OkHttp", response.toString());
                     Log.e("OkHttp2", json);
+                    PassList passList = new PassList();
+                    passList.start();
                 }
             });
         }
     }
-    //POST 取得Lack列表
-    class PassList extends Thread {
-        @Override
-        public void run() {
-            OkHttpClient client = new OkHttpClient();
-            final MediaType JSON
-                    = MediaType.parse("application/json; charset=utf-8");
-            String json = "{\"Token\":\"\" ,\"Action\":\"list\"}";
-            Log.e("JSON",json);
-            RequestBody body = RequestBody.create(JSON,json);
-            Request request = new Request.Builder()
-                    .url(url)
-                    .post(body)
-                    .build();
-            Log.e("UP", body.toString());
-            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
-            Call call = client.newCall(request);
-            //呼叫call類別的enqueue進行排程連線(連線至主機)
-            call.enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String json = response.body().string();
-                    Log.e("OkHttp3", response.toString());
-                    Log.e("OkHttp4", json);
-                    json2 = new ArrayList<String>();
-                    try {
-                        JSONObject j = new JSONObject(json);
-                        for (int i =0; i<j.getJSONArray("LackList").length();i++){
-                            String json0 = j.getJSONArray("LackList").getString(i);
-                            Log.e("json0",json0);
-                            json2.add(json0);
-                        }
-                        Log.e("JSON2222", String.valueOf(json2));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    parseJson2(String.valueOf(json2));
-                }
-            });
-
-        }
-    }
-
-
-    private void parseJson2(String json2) {
-        try {
-            trans = new ArrayList<String>();
-            final JSONArray array = new JSONArray(json2);
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                listname = obj.getString("LackNo")+"-"+obj.getString("LackName");
-                Log.e("okHTTP8", listname);
-                //ArrayList新增listname項目
-                trans.add(listname);
-                Log.e("trans", String.valueOf(trans));
-            }
-
-            final ListView listView = (ListView)findViewById(R.id.list);
-            // 設定 ListView 選擇的方式 :
-            // 單選 : ListView.CHOICE_MODE_SINGLE
-            // 多選 : ListView.CHOICE_MODE_MULTIPLE
-            listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-            // 陣列接收器
-            // RadioButton Layout 樣式 : android.R.layout.simple_list_item_single_choice
-            // CheckBox Layout 樣式    : android.R.layout.simple_list_item_multiple_choice
-            // trans 是陣列
-            final   ArrayAdapter<String> list = new ArrayAdapter<>(
-                    AddThingsActivity.this,
-                    android.R.layout.simple_list_item_multiple_choice,
-                    trans);
-                    //顯示出listView
-            runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    listView.setVisibility(View.VISIBLE);
-                    //設定 ListView 的接收器, 做為選項的來源
-                    listView.setAdapter(list);
-                    Log.e("trans2", String.valueOf(trans));
-                }
-            });
-
-
-
-
-
-            //ListView的點擊方法
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
-                    AbsListView list = (AbsListView)adapterView;
-                    Adapter adapter = list.getAdapter();
-                    SparseBooleanArray array = list.getCheckedItemPositions();
-                    checked = new ArrayList<>(list.getCheckedItemCount());
-                    checked2 = new ArrayList<>(list.getCheckedItemCount());
-                    for (int i = 0; i < array.size(); i++) {
-                        int key = array.keyAt(i);
-                        if (array.get(key)) {
-                            checked.add((String) adapter.getItem(key));
-                            Log.e("CHECK", String.valueOf(checked));
-                            int i2 =((String) adapter.getItem(key)).indexOf("-");
-                            Log.e("i2", String.valueOf(i2));
-                            String getItem = ((String) adapter.getItem(key)).substring(0,i2);
-                            Log.e("getItem", getItem);
-                            checked2.add(getItem);
-                            Log.e("checked2", String.valueOf(checked2));
-
-
-                        }
-
-                    }
-
-                }
-            });
-            Log.e("trans3", String.valueOf(trans));
-
-            //第二種點擊方式 (長按)
-            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
-                    // 利用索引值取得點擊的項目內容。
-                    String text = trans.get(index);
-                    Log.e("TEXT",text);
-                    // 因為只要取LackNO LackNO在-之前 所以先找出-的位置
-                    int i = text.indexOf('-');
-                    //取出0到-之間的值即LackNo
-                    LackNameTo = text.substring(0, i);
-                    Log.e("LackNameTo",LackNameTo);
-                    // 整理要顯示的文字。
-                    String result = "索引值: " + index + "\n" + "內容: " + LackNameTo;
-                    // 顯示。
-                    //Toast.makeText(AddThingsActivity.this, result, Toast.LENGTH_SHORT).show();
-                    PassList2 passList2 = new PassList2();
-                    passList2.start();
-                    // 回傳 false，長按後該項目被按下的狀態會保持。
-                    return false;
-                }
-            });
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        Log.e("CHECKED", String.valueOf(checked));
-
-    }
-    public void onScr (View v){
-        EditText editText = (EditText) findViewById(R.id.editText5);
-        String scr = editText.getText().toString();
-        String checkScr2 = checkScr(scr);
-        if(checkScr2!=null){
-            Log.e("SCR","YES");
-            final ArrayList<String> checkScr3 = new ArrayList<String>();
-            checkScr3.add(checkScr2);
-            final ListView listView = (ListView)findViewById(R.id.list);
-            listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
-            final   ArrayAdapter<String> list = new ArrayAdapter<>(
-                    AddThingsActivity.this,
-                    android.R.layout.simple_list_item_multiple_choice,
-                    checkScr3);
-                    //顯示出listView
-                    listView.setVisibility(View.VISIBLE);
-                    //設定 ListView 的接收器, 做為選項的來源
-                    listView.setAdapter(list);
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
-                    AbsListView list = (AbsListView)adapterView;
-                    Adapter adapter = list.getAdapter();
-                    SparseBooleanArray array = list.getCheckedItemPositions();
-                    checked = new ArrayList<>(list.getCheckedItemCount());
-                    for (int i = 0; i < array.size(); i++) {
-                        int key = array.keyAt(i);
-                        if (array.get(key)) {
-                            checked.add((String)adapter.getItem(key));
-                            Log.e("CHECK", String.valueOf(checked));
-
-
-                        }
-
-                    }
-
-                }
-            });
-
-            listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
-                    // 利用索引值取得點擊的項目內容。
-                    String text = checkScr3.get(index);
-                    Log.e("TEXT",text);
-                    // 因為只要取LackNO LackNO在-之前 所以先找出-的位置
-                    int i = text.indexOf('-');
-                    //取出0到-之間的值即LackNo
-                    LackNameTo = text.substring(0, i);
-                    Log.e("LackNameTo",LackNameTo);
-                    // 整理要顯示的文字。
-                    String result = "索引值: " + index + "\n" + "內容: " + LackNameTo;
-                    // 顯示。
-                    //Toast.makeText(AddThingsActivity.this, result, Toast.LENGTH_SHORT).show();
-                    PassList2 passList2 = new PassList2();
-                    passList2.start();
-                    // 回傳 false，長按後該項目被按下的狀態會保持。
-                    return false;
-                }
-            });
-
-        } else {
-            parseJson2(String.valueOf(json2));
-            Toast.makeText(AddThingsActivity.this, "查詢不到結果", Toast.LENGTH_SHORT).show();
-        }
-
-
-    }
-    private String checkScr(final String scr ) {
-
-        if (TextUtils.isEmpty(scr))
-            return null;
-        for (int i = 0; i < trans.size(); i++) {
-            String product = trans.get(i);
-            Log.e("PRODUCT",product);
-            if (product.equals(scr)) {
-                return product;
-            }
-
-        }
-        return null;
-    }
-    //長按後 到下一頁
-    class PassList2 extends Thread {
-
-        @Override
-        public void run() {
-            OkHttpClient client = new OkHttpClient();
-            final MediaType JSON
-                    = MediaType.parse("application/json; charset=utf-8");
-            String json = "{\"Token\":\"\" ,\"Action\":\"detail\",\"LackNo\":\"" + LackNameTo + "\"}";
-            Log.e("JSON", json);
-            RequestBody body = RequestBody.create(JSON, json);
-            Request request = new Request.Builder()
-                    .url(url)
-                    .post(body)
-                    .build();
-            Log.e("UP2", body.toString());
-            //使用OkHttp的newCall方法建立一個呼叫物件(尚未連線至主機)
-            Call call = client.newCall(request);
-            //呼叫call類別的enqueue進行排程連線(連線至主機)
-            call.enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    String json = response.body().string();
-                    Log.e("OkHttp5", response.toString());
-                    Log.e("OkHttp6", json);
-                    int i = json.length();
-                    String json2 = json.substring(26, i - 4);
-                    Log.e("JSON2", json2);
-                    parseJson3(json);
-                }
-            });
-
-        }
-
-        private void parseJson3(String json) {
-            try {
-
-                JSONObject jsonObject = new JSONObject(json);
-                String LackNo = jsonObject.getJSONArray("LackList").getString(0);
-                Log.e("LACKNO", String.valueOf(LackNo));
-                JSONObject jsonObject1 = new JSONObject(LackNo);
-                LackNo2 = (String) jsonObject1.get("LackNo");
-                LackNo3 = (String) jsonObject1.get("LackName");
-                Log.e("LACKNO2", LackNo2);
-                Log.e("LACKNO3", LackNo3);
-                trans = new ArrayList<String>();
-                for(int i =0; i<jsonObject1.getJSONArray("LackProduct").length();i++){
-                    String LackNo4 = jsonObject1.getJSONArray("LackProduct").getString(i);
-                    Log.e("LACKNO4", LackNo4);
-                    trans.add(LackNo4);
-                }
-
-                Log.e("TRANS", String.valueOf(trans));
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            Intent intent = new Intent(AddThingsActivity.this, ThingsActivity.class);
-            Bundle bag = new Bundle();
-            bag.putString("LackNo2",LackNo2);
-            bag.putString("LackNo3",LackNo3);
-            bag.putString("cUserName",cUserName);
-            bag.putString("trans", String.valueOf(trans));
-            intent.putExtras(bag);
-            startActivity(intent);
-
-        }
-
-    }
+    //刪除按鈕
     public void onDel (View v){
         PassDel passDel = new PassDel();
         passDel.start();
-    }
 
+    }
     class PassDel extends Thread {
 
         @Override
@@ -514,10 +286,10 @@ public class AddThingsActivity extends AppCompatActivity {
             OkHttpClient client = new OkHttpClient();
             final MediaType JSON
                     = MediaType.parse("application/json; charset=utf-8");
-            String checked3 = String.valueOf(checked2).replace("[","");
-            String checked4 = checked3.replace("]","");
-            String checked5 = checked4.replace(", ",",");
-            String json = "{\"Token\":\"\" ,\"Action\":\"delete\",\"LackNo\":\""+checked5+"\"}";
+            String checked3 = String.valueOf(checked).replace("[", "");
+            String checked4 = checked3.replace("]", "");
+            String checked5 = checked4.replace(", ", ",");
+            String json = "{\"Token\":\"\" ,\"Action\":\"delete\",\"LackNo\":\"" + checked5 + "\"}";
             Log.e("JSON", json);
             RequestBody body = RequestBody.create(JSON, json);
             Request request = new Request.Builder()
@@ -539,10 +311,14 @@ public class AddThingsActivity extends AppCompatActivity {
                     String json = response.body().string();
                     Log.e("OkHttp5", response.toString());
                     Log.e("OkHttp6", json);
+                    PassList passList = new PassList();
+                    passList.start();
+
                 }
             });
 
         }
 
     }
+
 }
